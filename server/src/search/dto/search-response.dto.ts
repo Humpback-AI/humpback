@@ -12,7 +12,6 @@ const SearchResponseSchema = z.object({
   query: z.string(),
   results: z.array(SearchResultSchema),
   total_results: z.number().int().min(0),
-  search_id: z.string().uuid(),
   time_taken: z.number().min(0),
 });
 

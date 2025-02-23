@@ -35,7 +35,6 @@ export class SearchService {
       query: createSearchDto.query,
       results: [],
       total_results: 0,
-      search_id: '',
       time_taken: (Date.now() - startTime) / 1000, // Convert to seconds
     };
   }
