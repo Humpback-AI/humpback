@@ -107,6 +107,8 @@ Check out a few resources that may come in handy when working with NestJS:
 ## TODO
 
 - Connect Qdrant and define a data structure for chunks
-- Connect Supabase
+  - Configure for Hybrid queries (optional)
+- Connect Supabase for auth
 - Create background job and API to fetch a modified content (created, updated, deleted) from Supabase and update Qdrant
 - Backfill results with Tavily search
+- MCP package
