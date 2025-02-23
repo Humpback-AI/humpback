@@ -1,29 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { QdrantClient } from '@qdrant/js-client-rest';
+import OpenAI from 'openai';
+
+import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
+import { OPENAI_CLIENT } from '@/providers/openai.provider';
 
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
 
 @Injectable()
 export class SearchService {
+  constructor(
+    @Inject(QDRANT_CLIENT)
+    private readonly qdrantClient: QdrantClient,
+    @Inject(OPENAI_CLIENT)
+    private readonly openai: OpenAI,
+    private readonly configService: ConfigService,
+  ) {}
+
   async create(createSearchDto: CreateSearchDto): Promise<SearchResponseDto> {
     const startTime = Date.now();
 
-    // TODO: Implement actual search logic here
-    // This would involve:
-    // 1. Processing the search query
-    // 2. Performing the search based on search_depth
-    // 3. Filtering and formatting results
-    // 4. Handling images if requested
-    // 5. Processing raw content if requested
+    // Generate embedding for the search query
+    const embeddingResponse = await this.openai.embeddings.create({
+      model: 'text-embedding-3-small',
+      input: createSearchDto.query,
+    });
 
-    const mockResult = {
+    const queryVector = embeddingResponse.data[0].embedding;
+
+    return {
       query: createSearchDto.query,
       results: [],
       total_results: 0,
       search_id: '',
       time_taken: (Date.now() - startTime) / 1000, // Convert to seconds
     };
-
-    return mockResult as SearchResponseDto;
   }
 }

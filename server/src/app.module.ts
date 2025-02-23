@@ -7,12 +7,13 @@ import { AppService } from '@/app.service';
 import { SearchModule } from '@/search/search.module';
 import { validationSchema } from '@/config/config.validation';
 import qdrantConfig from '@/config/qdrant.config';
+import openaiConfig from '@/config/openai.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [qdrantConfig],
+      load: [qdrantConfig, openaiConfig],
       validationSchema: validationSchema as Joi.ObjectSchema,
     }),
     SearchModule,

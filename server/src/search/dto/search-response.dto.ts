@@ -3,7 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 
 const SearchResultSchema = z.object({
   title: z.string(),
-  url: z.string().url(),
+  url: z.string(),
   content: z.string(),
   score: z.number().min(0).max(1),
 });
