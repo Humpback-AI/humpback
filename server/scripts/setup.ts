@@ -18,7 +18,7 @@ async function setupQdrant() {
     });
 
     // Collection name for the vector database
-    const collectionName = 'humpback_marketplace';
+    const collectionName = 'chunks';
 
     // Check if collection already exists
     try {
