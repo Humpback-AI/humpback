@@ -12,21 +12,6 @@ const SearchRequestSchema = z.object({
     .optional()
     .default(5)
     .describe('Maximum number of results to return'),
-  search_depth: z
-    .enum(['basic', 'advanced'])
-    .optional()
-    .default('basic')
-    .describe('Depth of search to perform'),
-  include_raw_content: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe('Whether to include raw content in results'),
-  include_images: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe('Whether to include images in results'),
 });
 
 // Create the DTO class
