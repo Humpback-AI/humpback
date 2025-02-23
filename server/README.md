@@ -103,3 +103,10 @@ Check out a few resources that may come in handy when working with NestJS:
 - Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
 - To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
 - Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+
+## TODO
+
+- Connect Qdrant and define a data structure for chunks
+- Connect Supabase
+- Create background job and API to fetch a modified content (created, updated, deleted) from Supabase and update Qdrant
+- Backfill results with Tavily search
