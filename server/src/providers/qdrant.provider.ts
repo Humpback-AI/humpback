@@ -1,14 +1,16 @@
 import { Provider } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
 
 export const QDRANT_CLIENT = 'QDRANT_CLIENT';
 
 export const QdrantProvider: Provider = {
   provide: QDRANT_CLIENT,
-  useFactory: async () => {
+  inject: [ConfigService],
+  useFactory: async (configService: ConfigService) => {
     const client = new QdrantClient({
-      url: process.env.QDRANT_URL || 'http://localhost:6333',
-      apiKey: process.env.QDRANT_API_KEY,
+      url: configService.get<string>('qdrant.url'),
+      apiKey: configService.get<string>('qdrant.apiKey'),
     });
 
     // Test the connection
