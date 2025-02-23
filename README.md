@@ -1,14 +1,15 @@
 # Humpback Marketplace
 
-> An information marketplace connecting content creators with LLM developers for high-quality, incentivized knowledge sharing.
+> The first search engine for LLMs built on trust and sustainable information economics. We're creating a marketplace that fairly values quality information while enabling the next generation of source-grounded AI.
 
 ## 🐋 About Humpback
 
-Humpback is revolutionizing how information flows between content creators and AI systems. Our platform creates a sustainable ecosystem where:
+Humpback is revolutionizing how information flows between content creators and AI systems by establishing the first search ecosystem built around trust and sustainable economics. Our platform creates a fair and transparent environment where:
 
 - Content creators and data providers can monetize their high-quality information directly
 - LLM developers can access reliable, authorized content for building source-grounded AI assistants
 - Users receive more accurate, verifiable AI responses with proper attribution
+- Quality information is properly valued and compensated
 
 We believe in transparency and trust, which is why we've made Humpback's core infrastructure open source. This allows the community to:
 
