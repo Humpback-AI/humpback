@@ -29,6 +29,7 @@ export class SearchService {
     });
 
     const queryVector = embeddingResponse.data[0].embedding;
+    console.log('🚀 ~ SearchService ~ create ~ queryVector:', queryVector);
 
     return {
       query: createSearchDto.query,

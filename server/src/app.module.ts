@@ -13,6 +13,7 @@ import openaiConfig from '@/config/openai.config';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: ['.env.local', '.env'],
       load: [qdrantConfig, openaiConfig],
       validationSchema: validationSchema as Joi.ObjectSchema,
     }),
