@@ -39,17 +39,150 @@ export type Database = {
           created_at: string;
           hashed_key: string;
           id: string;
+          organization_id: string;
           updated_at: string | null;
         };
         Insert: {
           created_at?: string;
           hashed_key: string;
           id?: string;
+          organization_id: string;
           updated_at?: string | null;
         };
         Update: {
           created_at?: string;
           hashed_key?: string;
+          id?: string;
+          organization_id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'api_keys_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      chunks: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          organization_id: string;
+          source_url: string;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          source_url: string;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          source_url?: string;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'chunks_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organization_roles: {
+        Row: {
+          created_at: string;
+          id: string;
+          organization_id: string;
+          role: string;
+          updated_at: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          role: string;
+          updated_at?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          role?: string;
+          updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'organization_roles_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'organization_roles_user_id_fkey';
+            columns: ['user_id'];
+            isOneToOne: false;
+            referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      organizations: {
+        Row: {
+          created_at: string;
+          id: string;
+          name: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          name: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          name?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      users: {
+        Row: {
+          created_at: string;
+          email: string;
+          id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string;
+          email: string;
+          id?: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string;
+          email?: string;
           id?: string;
           updated_at?: string | null;
         };

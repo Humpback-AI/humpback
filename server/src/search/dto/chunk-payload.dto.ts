@@ -3,6 +3,7 @@ import { createZodDto } from 'nestjs-zod';
 
 export const ChunkPayloadSchema = z.object({
   id: z.string().uuid(),
+  organization_id: z.string().uuid(),
   source_url: z.string(),
   title: z.string().min(1),
   created_at: z.string().datetime(),
@@ -11,3 +12,5 @@ export const ChunkPayloadSchema = z.object({
 });
 
 export class ChunkPayloadDto extends createZodDto(ChunkPayloadSchema) {}
+
+export type ChunkPayloadType = z.infer<typeof ChunkPayloadSchema>;
