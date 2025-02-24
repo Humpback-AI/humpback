@@ -78,6 +78,26 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
+  // Allow access to workspace creation page
+  if (request.nextUrl.pathname === "/workspaces/create") {
+    // Redirect to login if user is not authenticated
+    if (!session) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
+
+    // Redirect to verification page if user is not verified
+    if (!session.user.email_confirmed_at) {
+      return NextResponse.redirect(
+        new URL(
+          `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
+          request.url
+        )
+      );
+    }
+
+    return response;
+  }
+
   // Protected routes handling (everything else)
   // Redirect to login if user is not authenticated
   if (!session) {
@@ -102,10 +122,7 @@ export async function middleware(request: NextRequest) {
     .limit(1);
 
   // If user has no workspace roles, redirect to workspace creation
-  if (
-    !workspaceRoles?.length &&
-    request.nextUrl.pathname !== "/workspaces/create"
-  ) {
+  if (!workspaceRoles?.length) {
     return NextResponse.redirect(new URL("/workspaces/create", request.url));
   }
 

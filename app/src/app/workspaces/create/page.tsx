@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -17,59 +20,51 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+// Define the form schema
+const workspaceFormSchema = z.object({
+  workspaceName: z
+    .string()
+    .min(3, "Workspace name must be at least 3 characters")
+    .max(50, "Workspace name must be less than 50 characters"),
+});
+
+type WorkspaceFormValues = z.infer<typeof workspaceFormSchema>;
+
 export default function CreateWorkspacePage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
-  const [workspaceName, setWorkspaceName] = useState("");
   const [error, setError] = useState<string>("");
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
+  const form = useForm<WorkspaceFormValues>({
+    resolver: zodResolver(workspaceFormSchema),
+    defaultValues: {
+      workspaceName: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: WorkspaceFormValues) {
     setError("");
 
     try {
       const supabase = createClient();
 
-      // Get the current user
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) throw new Error("No authenticated user found");
-
-      // Start a transaction to create workspace and role
-      const { data: workspace, error: workspaceError } = await supabase
-        .from("workspaces")
-        .insert([{ name: workspaceName }])
-        .select()
-        .single();
+      // Create the workspace and automatically assign the creator as owner
+      const { data: workspaceId, error: workspaceError } = await supabase.rpc(
+        "create_workspace_with_owner",
+        { workspace_name: values.workspaceName }
+      );
 
       if (workspaceError) throw workspaceError;
 
-      // Create workspace role for the user
-      const { error: roleError } = await supabase
-        .from("workspace_roles")
-        .insert([
-          {
-            workspace_id: workspace.id,
-            user_id: user.id,
-            role: "owner",
-          },
-        ]);
-
-      if (roleError) throw roleError;
-
-      // Redirect to the overview page
-      router.push("/overview");
-      router.refresh();
+      // Redirect to the workspace's overview page
+      router.push(`/${workspaceId}/overview`);
     } catch (err) {
       setError(
         err instanceof Error
           ? err.message
           : "An error occurred while creating the workspace"
       );
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -83,26 +78,28 @@ export default function CreateWorkspacePage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="name">Workspace Name</Label>
+              <Label htmlFor="workspaceName">Workspace Name</Label>
               <Input
-                id="name"
+                id="workspaceName"
                 placeholder="Enter workspace name"
-                value={workspaceName}
-                onChange={(e) => setWorkspaceName(e.target.value)}
-                required
-                minLength={3}
-                maxLength={50}
+                disabled={isSubmitting}
+                {...form.register("workspaceName")}
               />
+              {form.formState.errors.workspaceName && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.workspaceName.message}
+                </p>
+              )}
             </div>
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading && (
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Create Workspace

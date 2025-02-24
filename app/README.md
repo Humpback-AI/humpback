@@ -38,7 +38,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # TODO
 
 - Create the app shell
-- Let users create organizations
 - Simple flow to provision API keys and manage them
 - Simple flow to create update, delete chunks of data
 - Set a pricing on the chunks of data
