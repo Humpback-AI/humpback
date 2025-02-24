@@ -43,7 +43,7 @@ export class SearchService {
         score: result.score,
       })),
       total_results: results.length,
-      time_taken: (Date.now() - startTime) / 1000, // Convert to seconds
+      time_taken: (Date.now() - startTime) / 1_000, // Convert to seconds
     };
   }
 }
