@@ -106,7 +106,7 @@ Check out a few resources that may come in handy when working with NestJS:
 
 ## TODO
 
-- Connect Supabase for auth
+- Set up auth
 - Create background job and API to fetch a modified content (created, updated, deleted) from Supabase and update Qdrant
 - Backfill results with Tavily search
 - MCP package

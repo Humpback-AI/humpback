@@ -41,6 +41,7 @@ export class SearchService {
       results: results.map((result) => ({
         ...ChunkPayloadSchema.parse(result.payload),
         score: result.score,
+        id: result.id,
       })),
       total_results: results.length,
       time_taken: (Date.now() - startTime) / 1_000, // Convert to seconds
