@@ -62,8 +62,10 @@ export class ContentSyncProcessor {
         source_url: chunk.source_url,
         title: chunk.title,
         content: chunk.content,
-        created_at: chunk.created_at,
-        updated_at: chunk.updated_at,
+        created_at: new Date(chunk.created_at).toISOString(),
+        updated_at: chunk.updated_at
+          ? new Date(chunk.updated_at).toISOString()
+          : null,
       }));
 
       await this.qdrantClient.upsert('chunks', {
