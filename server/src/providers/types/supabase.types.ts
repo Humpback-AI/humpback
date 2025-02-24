@@ -66,6 +66,44 @@ export type Database = {
           },
         ];
       };
+      chunks: {
+        Row: {
+          content: string;
+          created_at: string;
+          id: string;
+          organization_id: string;
+          source_url: string;
+          title: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          content: string;
+          created_at?: string;
+          id?: string;
+          organization_id: string;
+          source_url: string;
+          title: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          content?: string;
+          created_at?: string;
+          id?: string;
+          organization_id?: string;
+          source_url?: string;
+          title?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'chunks_organization_id_fkey';
+            columns: ['organization_id'];
+            isOneToOne: false;
+            referencedRelation: 'organizations';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       organization_roles: {
         Row: {
           created_at: string;
