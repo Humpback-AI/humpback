@@ -77,7 +77,7 @@ export function WorkspaceSwitcher({
           <ChevronDown className="h-4 w-4 text-gray-500" />
         </button>
       </PopoverTrigger>
-      <PopoverContent className="w-64 p-2">
+      <PopoverContent className="w-64 p-2" align="start">
         <div className="space-y-2">
           <div className="text-sm font-medium text-gray-500 px-2">
             Workspaces

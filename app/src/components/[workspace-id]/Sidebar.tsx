@@ -14,9 +14,6 @@ const Sidebar = () => {
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-gray-200 bg-white p-4 flex flex-col">
       {/* Brand Logo */}
       <div className="flex items-center gap-2 mb-8">
-        <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
-          <span className="text-white font-bold">H</span>
-        </div>
         <span className="font-semibold text-xl">Humpback</span>
       </div>
 
