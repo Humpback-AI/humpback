@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { Home } from "lucide-react";
 import { useParams } from "next/navigation";
+import { Home } from "lucide-react";
+
+import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
 
 const Sidebar = () => {
   const params = useParams();
@@ -19,15 +21,7 @@ const Sidebar = () => {
       </div>
 
       {/* Workspace Switcher */}
-      <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6">
-        <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-          <span className="text-white text-sm font-medium">PE</span>
-        </div>
-        <div className="flex flex-col text-left">
-          <span className="text-sm font-medium">Personal</span>
-          <span className="text-xs text-gray-500">Free</span>
-        </div>
-      </button>
+      <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
 
       {/* Navigation Links */}
       <nav className="flex-1">
