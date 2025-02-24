@@ -93,6 +93,8 @@ export async function middleware(request: NextRequest) {
           new URL(`/${workspaceRoles[0].workspace_id}`, request.url)
         );
       }
+      // If user has no workspaces, redirect to workspace creation
+      return NextResponse.redirect(new URL("/workspaces/create", request.url));
     }
     return response;
   }
