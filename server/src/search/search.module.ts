@@ -6,6 +6,7 @@ import { QdrantProvider } from '@/providers/qdrant.provider';
 import { OpenAIProvider } from '@/providers/openai.provider';
 import { ApiKeyGuard } from '@/guards/api-key.guard';
 import { SupabaseProvider } from '@/providers/supabase.provider';
+import { TavilyProvider } from '@/providers/tavily.provider';
 
 @Module({
   controllers: [SearchController],
@@ -15,6 +16,7 @@ import { SupabaseProvider } from '@/providers/supabase.provider';
     OpenAIProvider,
     ApiKeyGuard,
     SupabaseProvider,
+    TavilyProvider,
   ],
 })
 export class SearchModule {}

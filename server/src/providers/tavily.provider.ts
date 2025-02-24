@@ -10,6 +10,10 @@ export const TavilyProvider: Provider = {
   useFactory: (configService: ConfigService) => {
     const apiKey = configService.get<string>('tavily.apiKey');
 
+    if (!apiKey) {
+      return null;
+    }
+
     const client = tavily({
       apiKey,
     });

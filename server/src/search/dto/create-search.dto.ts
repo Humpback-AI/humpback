@@ -12,6 +12,11 @@ const SearchRequestSchema = z.object({
     .optional()
     .default(5)
     .describe('Maximum number of results to return'),
+  should_backfill: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Whether to backfill results with Tavily search'),
 });
 
 // Create the DTO class

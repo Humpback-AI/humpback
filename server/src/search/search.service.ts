@@ -2,9 +2,12 @@ import { Inject, Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import OpenAI from 'openai';
+import { tavily } from '@tavily/core';
+import { randomUUID } from 'crypto';
 
 import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
 import { OPENAI_CLIENT } from '@/providers/openai.provider';
+import { TAVILY_CLIENT } from '@/providers/tavily.provider';
 
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
@@ -17,6 +20,8 @@ export class SearchService {
     private readonly qdrantClient: QdrantClient,
     @Inject(OPENAI_CLIENT)
     private readonly openai: OpenAI,
+    @Inject(TAVILY_CLIENT)
+    private readonly tavilyClient: ReturnType<typeof tavily> | null,
     private readonly configService: ConfigService,
   ) {}
 
@@ -36,14 +41,52 @@ export class SearchService {
       limit: createSearchDto.max_results,
     });
 
+    let searchResults = results.map((result) => ({
+      ...ChunkPayloadSchema.parse(result.payload),
+      score: result.score,
+      id: result.id,
+    }));
+
+    // If backfilling is enabled and we have a Tavily client
+    if (
+      createSearchDto.should_backfill &&
+      this.tavilyClient &&
+      searchResults.length < createSearchDto.max_results
+    ) {
+      try {
+        const tavilyResponse = await this.tavilyClient.search(
+          createSearchDto.query,
+          {
+            search_depth: 'basic',
+            include_answer: false,
+            max_results: createSearchDto.max_results - searchResults.length,
+          },
+        );
+
+        // Convert Tavily results to match our format
+        const tavilyResults = tavilyResponse.results.map((result) => ({
+          title: result.title,
+          source_url: result.url,
+          content: result.content,
+          score: result.score,
+          created_at: new Date().toISOString(),
+          updated_at: null,
+          id: randomUUID(),
+          organization_id: 'tavily', // Special organization ID for Tavily results
+        }));
+
+        // Append Tavily results to our search results
+        searchResults = [...searchResults, ...tavilyResults];
+      } catch (error) {
+        console.error('Failed to fetch Tavily results:', error);
+        // Continue with existing results if Tavily fails
+      }
+    }
+
     return {
       query: createSearchDto.query,
-      results: results.map((result) => ({
-        ...ChunkPayloadSchema.parse(result.payload),
-        score: result.score,
-        id: result.id,
-      })),
-      total_results: results.length,
+      results: searchResults,
+      total_results: searchResults.length,
       time_taken: (Date.now() - startTime) / 1_000, // Convert to seconds
     };
   }
