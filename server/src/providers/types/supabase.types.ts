@@ -158,17 +158,17 @@ export type Database = {
         };
         Relationships: [
           {
-            foreignKeyName: 'organization_roles_organization_id_fkey';
-            columns: ['workspace_id'];
-            isOneToOne: false;
-            referencedRelation: 'workspaces';
-            referencedColumns: ['id'];
-          },
-          {
-            foreignKeyName: 'organization_roles_user_id_fkey';
+            foreignKeyName: 'workspace_roles_user_id_fkey';
             columns: ['user_id'];
             isOneToOne: false;
             referencedRelation: 'users';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'workspace_roles_workspace_id_fkey';
+            columns: ['workspace_id'];
+            isOneToOne: false;
+            referencedRelation: 'workspaces';
             referencedColumns: ['id'];
           },
         ];
