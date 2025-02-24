@@ -7,6 +7,11 @@ interface CookieData {
   options: CookieOptions;
 }
 
+// Helper function to create redirects
+const createRedirect = (request: NextRequest, path: string) => {
+  return NextResponse.redirect(new URL(path, request.url));
+};
+
 export async function middleware(request: NextRequest) {
   const response = NextResponse.next({
     request: {
@@ -42,9 +47,9 @@ export async function middleware(request: NextRequest) {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // Auth routes handling
+  // Special handling for auth routes
   if (request.nextUrl.pathname.startsWith("/auth")) {
-    // Skip auth checks for the callback route and reset password route with valid code
+    // Allow access to callback and reset password with code
     if (
       request.nextUrl.pathname === "/auth/callback" ||
       (request.nextUrl.pathname === "/auth/reset-password" &&
@@ -53,98 +58,65 @@ export async function middleware(request: NextRequest) {
       return response;
     }
 
-    // If user is signed in and verified, redirect them away from auth pages
-    // except for reset-password when they have a valid code
+    // Redirect verified users away from auth pages
     if (session?.user.email_confirmed_at) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return createRedirect(request, "/");
     }
 
-    // If user is signed in but not verified, only allow access to verification page
+    // Redirect unverified users to verification page
     if (session?.user && !session.user.email_confirmed_at) {
       if (!request.nextUrl.pathname.startsWith("/auth/verify-email")) {
-        return NextResponse.redirect(
-          new URL(
-            `/auth/verify-email?email=${encodeURIComponent(
-              session.user.email!
-            )}`,
-            request.url
-          )
+        return createRedirect(
+          request,
+          `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`
         );
       }
     }
 
-    // Allow access to auth pages for non-authenticated users
     return response;
   }
 
-  // Allow access to root path
-  if (request.nextUrl.pathname === "/") {
-    // If user is authenticated and verified, check for workspaces
-    if (session?.user?.email_confirmed_at) {
-      const { data: workspaceRoles } = await supabase
-        .from("workspace_roles")
-        .select("workspace_id")
-        .eq("user_id", session.user.id)
-        .limit(1);
-
-      // If user has workspaces, redirect to the first one
-      if (workspaceRoles?.length) {
-        return NextResponse.redirect(
-          new URL(`/${workspaceRoles[0].workspace_id}`, request.url)
-        );
-      }
-      // If user has no workspaces, redirect to workspace creation
-      return NextResponse.redirect(new URL("/workspaces/create", request.url));
-    }
-    return response;
-  }
-
-  // Allow access to workspace creation page
-  if (request.nextUrl.pathname === "/workspaces/create") {
-    // Redirect to login if user is not authenticated
-    if (!session) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
-    }
-
-    // Redirect to verification page if user is not verified
-    if (!session.user.email_confirmed_at) {
-      return NextResponse.redirect(
-        new URL(
-          `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
-          request.url
-        )
-      );
-    }
-
-    return response;
-  }
-
-  // Protected routes handling (everything else)
-  // Redirect to login if user is not authenticated
+  // Authentication check for all routes
   if (!session) {
-    return NextResponse.redirect(new URL("/auth/signin", request.url));
+    return createRedirect(request, "/auth/signin");
   }
 
-  // Redirect to verification page if user is not verified
+  // Email verification check
   if (!session.user.email_confirmed_at) {
-    return NextResponse.redirect(
-      new URL(
-        `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
-        request.url
-      )
+    return createRedirect(
+      request,
+      `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`
     );
   }
 
-  // Check if user has any workspace roles
+  // Handle root path workspace redirect
+  if (request.nextUrl.pathname === "/") {
+    const { data: workspaceRoles } = await supabase
+      .from("workspace_roles")
+      .select("workspace_id")
+      .eq("user_id", session.user.id)
+      .limit(1);
+
+    if (workspaceRoles?.length) {
+      return createRedirect(request, `/${workspaceRoles[0].workspace_id}`);
+    }
+    return createRedirect(request, "/workspaces/create");
+  }
+
+  // Special handling for workspace creation
+  if (request.nextUrl.pathname === "/workspaces/create") {
+    return response;
+  }
+
+  // Workspace role check for all other protected routes
   const { data: workspaceRoles } = await supabase
     .from("workspace_roles")
     .select("id")
     .eq("user_id", session.user.id)
     .limit(1);
 
-  // If user has no workspace roles, redirect to workspace creation
   if (!workspaceRoles?.length) {
-    return NextResponse.redirect(new URL("/workspaces/create", request.url));
+    return createRedirect(request, "/workspaces/create");
   }
 
   return response;
