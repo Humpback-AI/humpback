@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import OpenAI from 'openai';
@@ -15,6 +15,8 @@ import { ChunkPayloadSchema } from './dto/chunk-payload.dto';
 
 @Injectable()
 export class SearchService {
+  private readonly logger = new Logger(SearchService.name);
+
   constructor(
     @Inject(QDRANT_CLIENT)
     private readonly qdrantClient: QdrantClient,
@@ -82,7 +84,7 @@ export class SearchService {
 
         searchResults = [...searchResults, ...tavilyResults];
       } catch (error) {
-        console.error('Failed to fetch Tavily results:', error);
+        this.logger.error('Failed to fetch Tavily results:', error);
         // Continue with existing results if Tavily fails
       }
     }
