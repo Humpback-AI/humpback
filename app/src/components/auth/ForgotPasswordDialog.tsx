@@ -35,7 +35,7 @@ export function ForgotPasswordDialog() {
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
         email,
         {
-          redirectTo: `${window.location.origin}/auth/reset-password`,
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
         }
       );
 

@@ -76,7 +76,7 @@ export default function LoginPage() {
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
         },
       });
 
@@ -125,7 +125,6 @@ export default function LoginPage() {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <Label htmlFor="password">Password</Label>
-                <ForgotPasswordDialog />
               </div>
               <Input
                 id="password"
@@ -147,6 +146,9 @@ export default function LoginPage() {
               Sign In with Email
             </Button>
           </form>
+          <div className="flex items-center justify-end">
+            <ForgotPasswordDialog />
+          </div>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <span className="w-full border-t" />
