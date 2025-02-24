@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Request } from 'express';
+import { createHash } from 'crypto';
 
 import { Database, Tables } from '@/providers/types/supabase.types';
 import { SUPABASE_CLIENT } from '@/providers/supabase.provider';
@@ -31,11 +32,14 @@ export class ApiKeyGuard implements CanActivate {
     }
 
     try {
+      // Hash the API key before checking
+      const hashedToken = this.hashApiKey(token);
+
       // Check if API key exists in Supabase
       const { data, error } = await this.supabase
         .from('api_keys')
         .select('*')
-        .eq('key', token)
+        .eq('hashed_key', hashedToken)
         .single();
 
       if (error || !data) {
@@ -53,5 +57,9 @@ export class ApiKeyGuard implements CanActivate {
   private extractTokenFromHeader(request: Request): string | undefined {
     const [type, token] = request.headers.authorization?.split(' ') ?? [];
     return type === 'Bearer' ? token : undefined;
+  }
+
+  private hashApiKey(apiKey: string): string {
+    return createHash('sha256').update(apiKey).digest('hex');
   }
 }

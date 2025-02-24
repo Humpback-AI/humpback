@@ -37,20 +37,20 @@ export type Database = {
       api_keys: {
         Row: {
           created_at: string;
+          hashed_key: string;
           id: string;
-          key: string;
           updated_at: string | null;
         };
         Insert: {
           created_at?: string;
+          hashed_key: string;
           id?: string;
-          key: string;
           updated_at?: string | null;
         };
         Update: {
           created_at?: string;
+          hashed_key?: string;
           id?: string;
-          key?: string;
           updated_at?: string | null;
         };
         Relationships: [];
