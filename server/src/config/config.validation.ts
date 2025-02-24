@@ -7,4 +7,5 @@ export const validationSchema = Joi.object({
   SUPABASE_URL: Joi.string().required(),
   SUPABASE_SERVICE_KEY: Joi.string().required(),
   INTERNAL_SECRET_KEY: Joi.string().required(),
+  TAVILY_API_KEY: Joi.string().default(''),
 });
