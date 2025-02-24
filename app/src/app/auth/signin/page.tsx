@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,25 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string>("");
+  const [successMessage, setSuccessMessage] = useState<string>("");
+
+  useEffect(() => {
+    if (searchParams.get("message") === "passwordUpdated") {
+      setSuccessMessage(
+        "Your password has been updated successfully. Please sign in with your new password."
+      );
+    }
+    if (searchParams.get("error") === "invalidResetCode") {
+      setError(
+        "The password reset link is invalid or has expired. Please try requesting a new one."
+      );
+    }
+  }, [searchParams]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -87,6 +102,11 @@ export default function LoginPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {successMessage && (
+            <Alert>
+              <AlertDescription>{successMessage}</AlertDescription>
+            </Alert>
+          )}
           <form onSubmit={onSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>

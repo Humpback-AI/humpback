@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,6 +23,7 @@ export function ForgotPasswordDialog() {
   const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -29,18 +31,32 @@ export function ForgotPasswordDialog() {
     setError(null);
 
     try {
-      // Add your password reset logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const supabase = createClient();
+      const { error: resetError } = await supabase.auth.resetPasswordForEmail(
+        email,
+        {
+          redirectTo: `${window.location.origin}/auth/reset-password`,
+        }
+      );
+
+      if (resetError) {
+        throw resetError;
+      }
+
       setIsSuccess(true);
-    } catch {
-      setError("Failed to send reset email. Please try again.");
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to send reset email. Please try again."
+      );
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <Dialog>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="link" className="px-0 font-normal">
           Forgot password?
@@ -96,7 +112,11 @@ export function ForgotPasswordDialog() {
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => setIsSuccess(false)}
+                onClick={() => {
+                  setIsSuccess(false);
+                  setIsOpen(false);
+                  setEmail("");
+                }}
               >
                 Close
               </Button>

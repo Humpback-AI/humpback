@@ -36,7 +36,8 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 # TODO
-- Create the auth flow
+
+- Create the app shell
 - Let users create organizations
 - Simple flow to provision API keys and manage them
 - Simple flow to create update, delete chunks of data

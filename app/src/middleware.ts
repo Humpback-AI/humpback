@@ -40,14 +40,19 @@ export async function middleware(request: NextRequest) {
 
   // Auth routes handling
   if (request.nextUrl.pathname.startsWith("/auth")) {
-    // Skip auth checks for the callback route
-    if (request.nextUrl.pathname === "/auth/callback") {
+    // Skip auth checks for the callback route and reset password route with valid code
+    if (
+      request.nextUrl.pathname === "/auth/callback" ||
+      (request.nextUrl.pathname === "/auth/reset-password" &&
+        request.nextUrl.searchParams.get("code"))
+    ) {
       return response;
     }
 
     // If user is signed in and verified, redirect them away from auth pages
+    // except for reset-password when they have a valid code
     if (session?.user.email_confirmed_at) {
-      return NextResponse.redirect(new URL("/", request.url));
+      return NextResponse.redirect(new URL("/dashboard", request.url));
     }
 
     // If user is signed in but not verified, only allow access to verification page
