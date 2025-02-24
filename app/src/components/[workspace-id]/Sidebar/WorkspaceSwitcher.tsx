@@ -12,6 +12,28 @@ import {
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 
+// Add color generation utility
+function getColorFromName(name: string): string {
+  const colors = [
+    "bg-purple-600",
+    "bg-blue-600",
+    "bg-indigo-600",
+    "bg-pink-600",
+    "bg-teal-600",
+    "bg-green-600",
+    "bg-red-600",
+  ];
+
+  // Create a simple hash from the name
+  const hash = name.split("").reduce((acc, char) => {
+    return char.charCodeAt(0) + ((acc << 5) - acc);
+  }, 0);
+
+  // Use the hash to select a color
+  const index = Math.abs(hash) % colors.length;
+  return colors[index];
+}
+
 interface Workspace {
   id: string;
   name: string;
@@ -68,7 +90,13 @@ export function WorkspaceSwitcher({
           variant="ghost"
           className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6 w-full h-12"
         >
-          <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+          <div
+            className={`w-8 h-8 ${
+              currentWorkspace?.name
+                ? getColorFromName(currentWorkspace.name)
+                : "bg-gray-600"
+            } rounded-full flex items-center justify-center`}
+          >
             <span className="text-white text-sm font-medium">
               {currentWorkspace?.name.substring(0, 2).toUpperCase() || "WS"}
             </span>
@@ -94,7 +122,11 @@ export function WorkspaceSwitcher({
               variant="ghost"
             >
               <Link href={`/${workspace.id}`}>
-                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                <div
+                  className={`w-8 h-8 ${getColorFromName(
+                    workspace.name
+                  )} rounded-full flex items-center justify-center`}
+                >
                   <span className="text-white text-sm font-medium">
                     {workspace.name.substring(0, 2).toUpperCase()}
                   </span>
