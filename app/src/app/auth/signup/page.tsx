@@ -90,7 +90,7 @@ export default function SignUpPage() {
       }
 
       if (data.user) {
-        router.push("/");
+        router.push("/dashboard");
       }
     } catch (err) {
       setError(

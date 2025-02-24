@@ -44,7 +44,7 @@ export default function LoginPage() {
       }
 
       // The middleware will handle the appropriate redirect
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (err) {
       setError(
