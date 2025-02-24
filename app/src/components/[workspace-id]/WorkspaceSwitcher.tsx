@@ -64,7 +64,10 @@ export function WorkspaceSwitcher({
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6 w-full">
+        <Button
+          variant="ghost"
+          className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6 w-full h-12"
+        >
           <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
             <span className="text-white text-sm font-medium">
               {currentWorkspace?.name.substring(0, 2).toUpperCase() || "WS"}
@@ -76,7 +79,7 @@ export function WorkspaceSwitcher({
             </span>
           </div>
           <ChevronDown className="h-4 w-4 text-gray-500" />
-        </button>
+        </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-2" align="start">
         <div className="space-y-2">
@@ -84,27 +87,29 @@ export function WorkspaceSwitcher({
             Workspaces
           </div>
           {workspaces.map((workspace) => (
-            <Link
+            <Button
+              asChild
               key={workspace.id}
-              href={`/${workspace.id}`}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm h-12 w-full justify-start"
+              variant="ghost"
             >
-              <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {workspace.name.substring(0, 2).toUpperCase()}
-                </span>
-              </div>
-              <span>{workspace.name}</span>
-            </Link>
+              <Link href={`/${workspace.id}`}>
+                <div className="w-8 h-8 bg-purple-600 rounded-full flex items-center justify-center">
+                  <span className="text-white text-sm font-medium">
+                    {workspace.name.substring(0, 2).toUpperCase()}
+                  </span>
+                </div>
+                <span>{workspace.name}</span>
+              </Link>
+            </Button>
           ))}
-          <div className="border-t my-2" />
           <Button asChild className="w-full justify-start" variant="ghost">
             <Link
               href="/workspaces/create"
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm text-blue-600"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm h-12"
             >
               <Plus />
-              Create new workspace
+              <span>Create new workspace</span>
             </Link>
           </Button>
         </div>

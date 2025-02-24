@@ -39,7 +39,7 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 rounded-full">
+        <Button variant="ghost" className="h-8 w-8 rounded-full p-0">
           <Avatar className="h-8 w-8">
             {user.user_metadata?.avatar_url ? (
               <AvatarImage
@@ -63,7 +63,7 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
           <div className="space-y-1">
             <Button
               variant="ghost"
-              className="w-full justify-start gap-2"
+              className="w-full justify-start gap-2 h-8"
               onClick={handleLogout}
             >
               <LogOut />

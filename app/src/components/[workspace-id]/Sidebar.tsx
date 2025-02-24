@@ -36,7 +36,7 @@ const Sidebar = () => {
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-gray-200 bg-white p-4 flex flex-col">
       {/* Top Section with Brand and User */}
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-8 h-8">
         <span className="font-semibold text-xl">Humpback</span>
         {user && <UserAccountButton user={user} />}
       </div>
