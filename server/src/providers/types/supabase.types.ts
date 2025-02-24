@@ -39,29 +39,29 @@ export type Database = {
           created_at: string;
           hashed_key: string;
           id: string;
-          organization_id: string;
           updated_at: string | null;
+          workspace_id: string;
         };
         Insert: {
           created_at?: string;
           hashed_key: string;
           id?: string;
-          organization_id: string;
           updated_at?: string | null;
+          workspace_id: string;
         };
         Update: {
           created_at?: string;
           hashed_key?: string;
           id?: string;
-          organization_id?: string;
           updated_at?: string | null;
+          workspace_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'api_keys_organization_id_fkey';
-            columns: ['organization_id'];
+            foreignKeyName: 'api_keys_workspace_id_fkey';
+            columns: ['workspace_id'];
             isOneToOne: false;
-            referencedRelation: 'organizations';
+            referencedRelation: 'workspaces';
             referencedColumns: ['id'];
           },
         ];
@@ -71,70 +71,97 @@ export type Database = {
           content: string;
           created_at: string;
           id: string;
-          organization_id: string;
           source_url: string;
           title: string;
           updated_at: string | null;
+          workspace_id: string;
         };
         Insert: {
           content: string;
           created_at?: string;
           id?: string;
-          organization_id: string;
           source_url: string;
           title: string;
           updated_at?: string | null;
+          workspace_id: string;
         };
         Update: {
           content?: string;
           created_at?: string;
           id?: string;
-          organization_id?: string;
           source_url?: string;
           title?: string;
           updated_at?: string | null;
+          workspace_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: 'chunks_organization_id_fkey';
-            columns: ['organization_id'];
+            foreignKeyName: 'chunks_workspace_id_fkey';
+            columns: ['workspace_id'];
             isOneToOne: false;
-            referencedRelation: 'organizations';
+            referencedRelation: 'workspaces';
             referencedColumns: ['id'];
           },
         ];
       };
-      organization_roles: {
+      users: {
+        Row: {
+          avatar_image_url: string | null;
+          created_at: string;
+          email: string;
+          full_name: string | null;
+          id: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          avatar_image_url?: string | null;
+          created_at?: string;
+          email: string;
+          full_name?: string | null;
+          id?: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          avatar_image_url?: string | null;
+          created_at?: string;
+          email?: string;
+          full_name?: string | null;
+          id?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [];
+      };
+      workspace_roles: {
         Row: {
           created_at: string;
           id: string;
-          organization_id: string;
           role: string;
           updated_at: string | null;
           user_id: string;
+          workspace_id: string;
         };
         Insert: {
           created_at?: string;
           id?: string;
-          organization_id: string;
           role: string;
           updated_at?: string | null;
           user_id: string;
+          workspace_id: string;
         };
         Update: {
           created_at?: string;
           id?: string;
-          organization_id?: string;
           role?: string;
           updated_at?: string | null;
           user_id?: string;
+          workspace_id?: string;
         };
         Relationships: [
           {
             foreignKeyName: 'organization_roles_organization_id_fkey';
-            columns: ['organization_id'];
+            columns: ['workspace_id'];
             isOneToOne: false;
-            referencedRelation: 'organizations';
+            referencedRelation: 'workspaces';
             referencedColumns: ['id'];
           },
           {
@@ -146,7 +173,7 @@ export type Database = {
           },
         ];
       };
-      organizations: {
+      workspaces: {
         Row: {
           created_at: string;
           id: string;
@@ -163,30 +190,6 @@ export type Database = {
           created_at?: string;
           id?: string;
           name?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
-      users: {
-        Row: {
-          created_at: string;
-          email: string;
-          full_name: string | null;
-          id: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          email: string;
-          full_name?: string | null;
-          id?: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          email?: string;
-          full_name?: string | null;
-          id?: string;
           updated_at?: string | null;
         };
         Relationships: [];
