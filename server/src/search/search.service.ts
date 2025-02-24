@@ -8,6 +8,7 @@ import { OPENAI_CLIENT } from '@/providers/openai.provider';
 
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
+import { ChunkPayloadSchema } from './dto/chunk-payload.dto';
 
 @Injectable()
 export class SearchService {
@@ -29,12 +30,18 @@ export class SearchService {
     });
 
     const queryVector = embeddingResponse.data[0].embedding;
-    console.log('🚀 ~ SearchService ~ create ~ queryVector:', queryVector);
+
+    const results = await this.qdrantClient.search('chunks', {
+      vector: queryVector,
+      limit: createSearchDto.max_results,
+    });
 
     return {
       query: createSearchDto.query,
-      results: [],
-      total_results: 0,
+      results: results.map((result) =>
+        ChunkPayloadSchema.parse(result.payload),
+      ),
+      total_results: results.length,
       time_taken: (Date.now() - startTime) / 1000, // Convert to seconds
     };
   }

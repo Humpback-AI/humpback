@@ -37,7 +37,7 @@ async function setupQdrant() {
     // Create collection with specified configuration
     await client.createCollection(collectionName, {
       vectors: {
-        default: {
+        '': {
           size: 1536, // OpenAI embedding size
           distance: 'Cosine',
           quantization_config: {
