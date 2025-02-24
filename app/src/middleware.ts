@@ -52,7 +52,7 @@ export async function middleware(request: NextRequest) {
     // If user is signed in and verified, redirect them away from auth pages
     // except for reset-password when they have a valid code
     if (session?.user.email_confirmed_at) {
-      return NextResponse.redirect(new URL("/dashboard", request.url));
+      return NextResponse.redirect(new URL("/overview", request.url));
     }
 
     // If user is signed in but not verified, only allow access to verification page
@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Protected routes handling (add more routes as needed)
-  const protectedPaths = ["/dashboard", "/profile", "/settings"];
+  const protectedPaths = ["/overview", "/profile", "/settings"];
   const isProtectedPath = protectedPaths.some((path) =>
     request.nextUrl.pathname.startsWith(path)
   );

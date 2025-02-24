@@ -15,7 +15,7 @@ export default function AuthCallbackPage() {
     supabase.auth.onAuthStateChange((event) => {
       if (event === "SIGNED_IN") {
         // Let the middleware handle the redirect
-        router.push("/dashboard");
+        router.push("/");
       }
     });
   }, [router]);
