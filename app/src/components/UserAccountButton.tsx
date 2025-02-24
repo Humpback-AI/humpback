@@ -52,23 +52,22 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
           </Avatar>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56" align="start">
+      <PopoverContent className="w-56 p-2" align="start">
         <div className="space-y-3">
-          <div className="flex flex-col space-y-1">
+          <div className="flex flex-col space-y-1 p-2">
             <p className="text-sm font-medium">
               {user.user_metadata?.full_name || "User"}
             </p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
-          <div className="border-t border-gray-200" />
           <div className="space-y-1">
             <Button
               variant="ghost"
               className="w-full justify-start gap-2"
               onClick={handleLogout}
             >
-              <LogOut size={16} />
-              <span>Logout</span>
+              <LogOut />
+              Logout
             </Button>
           </div>
         </div>

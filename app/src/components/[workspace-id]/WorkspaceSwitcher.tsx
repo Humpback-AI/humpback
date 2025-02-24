@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Plus } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -10,6 +10,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
 
 interface Workspace {
   id: string;
@@ -97,12 +98,15 @@ export function WorkspaceSwitcher({
             </Link>
           ))}
           <div className="border-t my-2" />
-          <Link
-            href="/workspaces/create"
-            className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm text-blue-600"
-          >
-            Create new workspace
-          </Link>
+          <Button asChild className="w-full justify-start" variant="ghost">
+            <Link
+              href="/workspaces/create"
+              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm text-blue-600"
+            >
+              <Plus />
+              Create new workspace
+            </Link>
+          </Button>
         </div>
       </PopoverContent>
     </Popover>
