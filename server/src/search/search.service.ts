@@ -70,7 +70,6 @@ export class SearchService {
           },
         );
 
-        // Convert Tavily results to match our format
         const tavilyResults = tavilyResponse.results.map((result) => ({
           title: result.title,
           source_url: result.url,
@@ -81,7 +80,6 @@ export class SearchService {
           id: randomUUID(),
         }));
 
-        // Append Tavily results to our search results
         searchResults = [...searchResults, ...tavilyResults];
       } catch (error) {
         console.error('Failed to fetch Tavily results:', error);
@@ -93,7 +91,7 @@ export class SearchService {
       query: createSearchDto.query,
       results: searchResults,
       total_results: searchResults.length,
-      time_taken: (Date.now() - startTime) / 1_000, // Convert to seconds
+      time_taken: (Date.now() - startTime) / 1_000,
     };
   }
 }
