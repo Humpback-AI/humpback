@@ -10,6 +10,7 @@ import { validationSchema } from './config/config.validation';
 import qdrantConfig from './config/qdrant.config';
 import openaiConfig from './config/openai.config';
 import supabaseConfig from './config/supabase.config';
+import internalConfig from './config/internal.config';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
@@ -17,7 +18,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [qdrantConfig, openaiConfig, supabaseConfig],
+      load: [qdrantConfig, openaiConfig, supabaseConfig, internalConfig],
       validationSchema: validationSchema,
     }),
     BullModule.forRootAsync({

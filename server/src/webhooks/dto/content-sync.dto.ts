@@ -3,11 +3,9 @@ import { createZodDto } from 'nestjs-zod';
 
 // Define the sync request schema
 const ContentSyncSchema = z.object({
-  chunk_id: z
-    .number()
-    .int()
-    .positive()
-    .describe('The ID to start syncing from'),
+  chunk_ids: z
+    .array(z.string().uuid())
+    .describe('The ids of the chunks to sync'),
 });
 
 // Create the DTO class

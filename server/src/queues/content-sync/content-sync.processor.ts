@@ -33,33 +33,30 @@ export class ContentSyncProcessor {
   @Process('sync')
   async handleContentSync(job: Job<ContentSyncJob>) {
     this.logger.log(
-      `Processing content sync job for chunk ID: ${job.data.chunkId}`,
+      `Processing content sync job for chunk IDs: ${job.data.chunkIds.join(
+        ', ',
+      )}`,
     );
 
     try {
-      const { data: chunk, error: fetchError } = await this.supabaseClient
+      const { data: chunks, error: fetchError } = await this.supabaseClient
         .from('chunks')
         .select('*')
-        .eq('id', job.data.chunkId.toString())
-        .single();
+        .in('id', job.data.chunkIds);
 
       if (fetchError) {
-        throw new Error(`Failed to fetch chunk: ${fetchError.message}`);
-      }
-
-      if (!chunk) {
-        throw new Error(`Chunk with ID ${job.data.chunkId} not found`);
+        throw new Error(`Failed to fetch chunks: ${fetchError.message}`);
       }
 
       const embeddingResponse = await this.openaiClient.embeddings.create({
         model: 'text-embedding-3-small',
-        input: this.formatEmbeddingInput(chunk.title, chunk.content),
+        input: chunks.map((chunk) =>
+          this.formatEmbeddingInput(chunk.title, chunk.content),
+        ),
         encoding_format: 'float',
       });
 
-      const embedding = embeddingResponse.data[0].embedding;
-
-      const payload: ChunkPayloadType = {
+      const payloads: ChunkPayloadType[] = chunks.map((chunk) => ({
         id: chunk.id,
         organization_id: chunk.organization_id,
         source_url: chunk.source_url,
@@ -67,21 +64,21 @@ export class ContentSyncProcessor {
         content: chunk.content,
         created_at: chunk.created_at,
         updated_at: chunk.updated_at,
-      };
+      }));
 
       await this.qdrantClient.upsert('chunks', {
         wait: true,
-        points: [
-          {
-            id: chunk.id,
-            payload,
-            vector: embedding,
-          },
-        ],
+        points: payloads.map((payload, index) => ({
+          id: payload.id,
+          payload,
+          vector: embeddingResponse.data[index].embedding,
+        })),
       });
 
       this.logger.log(
-        `Successfully processed content sync job for chunk ID: ${job.data.chunkId}`,
+        `Successfully processed content sync job for chunk IDs: ${job.data.chunkIds.join(
+          ', ',
+        )}`,
       );
     } catch (error: unknown) {
       const errorMessage =

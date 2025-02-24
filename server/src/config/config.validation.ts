@@ -6,4 +6,5 @@ export const validationSchema = Joi.object({
   OPENAI_API_KEY: Joi.string().required(),
   SUPABASE_URL: Joi.string().required(),
   SUPABASE_SERVICE_KEY: Joi.string().required(),
+  INTERNAL_SECRET_KEY: Joi.string().required(),
 });

@@ -11,10 +11,10 @@ export class ContentSyncService {
     private contentSyncQueue: Queue<ContentSyncJob>,
   ) {}
 
-  async addContentSyncJob(chunkId: number) {
+  async addContentSyncJob(chunkIds: string[]) {
     return this.contentSyncQueue.add(
       'sync',
-      { chunkId },
+      { chunkIds },
       {
         attempts: 3,
         backoff: {

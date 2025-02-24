@@ -1,3 +1,3 @@
 export interface ContentSyncJob {
-  chunkId: number;
+  chunkIds: string[];
 }
