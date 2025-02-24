@@ -41,6 +41,8 @@ export default tseslint.config(
           varsIgnorePattern: '^_',
         },
       ],
+      '@typescript-eslint/no-unsafe-member-access': 'off',
+      '@typescript-eslint/no-unsafe-return': 'off',
     },
   },
 );

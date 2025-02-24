@@ -12,3 +12,5 @@ export const ChunkPayloadSchema = z.object({
 });
 
 export class ChunkPayloadDto extends createZodDto(ChunkPayloadSchema) {}
+
+export type ChunkPayloadType = z.infer<typeof ChunkPayloadSchema>;
