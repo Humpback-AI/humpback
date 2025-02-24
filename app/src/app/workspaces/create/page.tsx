@@ -58,7 +58,7 @@ export default function CreateWorkspacePage() {
       if (workspaceError) throw workspaceError;
 
       // Redirect to the workspace's overview page
-      router.push(`/${workspaceId}/overview`);
+      router.push(`/${workspaceId}`);
     } catch (err) {
       setError(
         err instanceof Error

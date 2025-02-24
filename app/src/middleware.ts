@@ -52,7 +52,7 @@ export async function middleware(request: NextRequest) {
     // If user is signed in and verified, redirect them away from auth pages
     // except for reset-password when they have a valid code
     if (session?.user.email_confirmed_at) {
-      return NextResponse.redirect(new URL("/overview", request.url));
+      return NextResponse.redirect(new URL("/", request.url));
     }
 
     // If user is signed in but not verified, only allow access to verification page
@@ -75,6 +75,21 @@ export async function middleware(request: NextRequest) {
 
   // Allow access to root path
   if (request.nextUrl.pathname === "/") {
+    // If user is authenticated and verified, check for workspaces
+    if (session?.user?.email_confirmed_at) {
+      const { data: workspaceRoles } = await supabase
+        .from("workspace_roles")
+        .select("workspace_id")
+        .eq("user_id", session.user.id)
+        .limit(1);
+
+      // If user has workspaces, redirect to the first one
+      if (workspaceRoles?.length) {
+        return NextResponse.redirect(
+          new URL(`/${workspaceRoles[0].workspace_id}`, request.url)
+        );
+      }
+    }
     return response;
   }
 

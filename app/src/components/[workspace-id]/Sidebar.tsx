@@ -2,8 +2,12 @@
 
 import Link from "next/link";
 import { Home } from "lucide-react";
+import { useParams } from "next/navigation";
 
 const Sidebar = () => {
+  const params = useParams();
+  const workspaceId = params["workspace-id"] as string;
+
   return (
     <aside className="fixed left-0 top-0 h-screen w-64 border-r border-gray-200 bg-white p-4 flex flex-col">
       {/* Brand Logo */}
@@ -30,7 +34,7 @@ const Sidebar = () => {
         <ul className="space-y-2">
           <li>
             <Link
-              href="/overview"
+              href={`/${workspaceId}`}
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
             >
               <Home size={20} />
