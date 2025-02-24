@@ -1,8 +1,8 @@
 "use client";
 
 import type React from "react";
-
 import { useState } from "react";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
+import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
 
 export default function LoginPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -61,7 +62,10 @@ export default function LoginPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password">Password</Label>
+                <ForgotPasswordDialog />
+              </div>
               <Input
                 id="password"
                 type="password"

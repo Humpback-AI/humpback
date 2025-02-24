@@ -17,7 +17,6 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Progress } from "@/components/ui/progress";
 
 export default function SignUpPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -40,13 +39,6 @@ export default function SignUpPage() {
   };
 
   const passwordStrength = calculatePasswordStrength(formData.password);
-
-  const getPasswordStrengthColor = () => {
-    if (passwordStrength <= 25) return "bg-red-500";
-    if (passwordStrength <= 50) return "bg-orange-500";
-    if (passwordStrength <= 75) return "bg-yellow-500";
-    return "bg-green-500";
-  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -142,10 +134,6 @@ export default function SignUpPage() {
               />
               {formData.password && (
                 <div className="space-y-2">
-                  <Progress
-                    value={passwordStrength}
-                    className={`h-2 ${getPasswordStrengthColor()}`}
-                  />
                   <p className="text-sm text-muted-foreground">
                     Password strength:{" "}
                     {passwordStrength <= 25
