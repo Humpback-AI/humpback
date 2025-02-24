@@ -48,6 +48,29 @@ export class ContentSyncProcessor {
         throw new Error(`Failed to fetch chunks: ${fetchError.message}`);
       }
 
+      // Find chunks that no longer exist in Supabase
+      const existingChunkIds = new Set(chunks.map((chunk) => chunk.id));
+      const deletedChunkIds = job.data.chunkIds.filter(
+        (id) => !existingChunkIds.has(id),
+      );
+
+      // Delete non-existent chunks from Qdrant
+      if (deletedChunkIds.length > 0) {
+        this.logger.log(
+          `Deleting chunks that no longer exist: ${deletedChunkIds.join(', ')}`,
+        );
+        await this.qdrantClient.delete('chunks', {
+          wait: true,
+          points: deletedChunkIds,
+        });
+      }
+
+      // If there are no chunks to process, we're done
+      if (chunks.length === 0) {
+        this.logger.log('No chunks to process');
+        return;
+      }
+
       const embeddingResponse = await this.openaiClient.embeddings.create({
         model: 'text-embedding-3-small',
         input: chunks.map((chunk) =>
