@@ -2,16 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, usePathname } from "next/navigation";
 import { Home } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
-import { WorkspaceSwitcher } from "./WorkspaceSwitcher";
-import { UserAccountButton } from "@/components/UserAccountButton";
+import { UserAccountButton } from "@/components/[workspace-id]/Sidebar/UserAccountButton";
 import { createClient } from "@/lib/supabase/client";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+import { WorkspaceSwitcher } from "./Sidebar/WorkspaceSwitcher";
 
 const Sidebar = () => {
   const params = useParams();
+  const pathname = usePathname();
   const workspaceId = params["workspace-id"] as string;
   const [user, setUser] = useState<User | null>(null);
 
@@ -48,13 +52,23 @@ const Sidebar = () => {
       <nav className="flex-1">
         <ul className="space-y-2">
           <li>
-            <Link
-              href={`/${workspaceId}`}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start",
+                pathname === `/${workspaceId}` &&
+                  "bg-accent text-accent-foreground"
+              )}
+              asChild
             >
-              <Home size={20} />
-              <span>Overview</span>
-            </Link>
+              <Link
+                href={`/${workspaceId}`}
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
+              >
+                <Home />
+                <span>Overview</span>
+              </Link>
+            </Button>
           </li>
         </ul>
       </nav>
