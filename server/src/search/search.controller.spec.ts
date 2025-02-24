@@ -1,8 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
+
 import { SearchController } from './search.controller';
 import { SearchService } from './search.service';
 
-describe('SearchController', () => {
+describe(SearchController, () => {
   let controller: SearchController;
 
   beforeEach(async () => {
