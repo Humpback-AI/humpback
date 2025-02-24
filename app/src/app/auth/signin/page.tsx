@@ -3,6 +3,9 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -20,14 +23,28 @@ import { Icons } from "@/components/ui/icons";
 import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+const signInSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+  password: z.string().min(1, "Password is required"),
+});
+
+type SignInFormValues = z.infer<typeof signInSchema>;
+
 export default function LoginPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [error, setError] = useState<string>("");
   const [successMessage, setSuccessMessage] = useState<string>("");
+
+  const form = useForm<SignInFormValues>({
+    resolver: zodResolver(signInSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
 
   useEffect(() => {
     if (searchParams.get("message") === "passwordUpdated") {
@@ -42,16 +59,14 @@ export default function LoginPage() {
     }
   }, [searchParams]);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
+  async function onSubmit(values: SignInFormValues) {
     setError("");
 
     try {
       const supabase = createClient();
       const { error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: values.email,
+        password: values.password,
       });
 
       if (signInError) {
@@ -65,8 +80,6 @@ export default function LoginPage() {
       setError(
         err instanceof Error ? err.message : "An error occurred during sign in"
       );
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -107,7 +120,7 @@ export default function LoginPage() {
               <AlertDescription>{successMessage}</AlertDescription>
             </Alert>
           )}
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -117,10 +130,14 @@ export default function LoginPage() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                disabled={isLoading}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                {...form.register("email")}
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -129,18 +146,22 @@ export default function LoginPage() {
               <Input
                 id="password"
                 type="password"
-                disabled={isLoading}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                disabled={isSubmitting}
+                {...form.register("password")}
               />
+              {form.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
             </div>
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading && (
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Sign In with Email
@@ -162,11 +183,11 @@ export default function LoginPage() {
           <Button
             variant="outline"
             type="button"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full"
             onClick={signInWithGoogle}
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Icons.google className="mr-2 h-4 w-4" />

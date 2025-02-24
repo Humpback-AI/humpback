@@ -1,8 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { createClient } from "@/lib/supabase/client";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -18,22 +21,33 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+const resetPasswordSchema = z.object({
+  email: z.string().email("Please enter a valid email address"),
+});
+
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
 export function ForgotPasswordDialog() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [email, setEmail] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
   const [isOpen, setIsOpen] = useState(false);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setIsLoading(true);
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      email: "",
+    },
+  });
+
+  const { isSubmitting } = form.formState;
+
+  async function onSubmit(values: ResetPasswordFormValues) {
     setError(null);
 
     try {
       const supabase = createClient();
       const { error: resetError } = await supabase.auth.resetPasswordForEmail(
-        email,
+        values.email,
         {
           redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password`,
         }
@@ -50,13 +64,21 @@ export function ForgotPasswordDialog() {
           ? err.message
           : "Failed to send reset email. Please try again."
       );
-    } finally {
-      setIsLoading(false);
     }
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={(open) => {
+        setIsOpen(open);
+        if (!open) {
+          form.reset();
+          setError(null);
+          setIsSuccess(false);
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="link" className="px-0 font-normal">
           Forgot password?
@@ -71,7 +93,7 @@ export function ForgotPasswordDialog() {
           </DialogDescription>
         </DialogHeader>
         {!isSuccess ? (
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -81,10 +103,14 @@ export function ForgotPasswordDialog() {
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                disabled={isLoading}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                disabled={isSubmitting}
+                {...form.register("email")}
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
             {error && (
               <Alert variant="destructive">
@@ -92,8 +118,8 @@ export function ForgotPasswordDialog() {
               </Alert>
             )}
             <DialogFooter>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading && (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting && (
                   <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
                 )}
                 Send reset link
@@ -115,7 +141,7 @@ export function ForgotPasswordDialog() {
                 onClick={() => {
                   setIsSuccess(false);
                   setIsOpen(false);
-                  setEmail("");
+                  form.reset();
                 }}
               >
                 Close

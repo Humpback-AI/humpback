@@ -2,6 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -18,52 +21,65 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
+const calculatePasswordStrength = (password: string): number => {
+  let strength = 0;
+  if (password.length >= 8) strength += 25;
+  if (password.match(/[A-Z]/)) strength += 25;
+  if (password.match(/[0-9]/)) strength += 25;
+  if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+  return strength;
+};
+
+const passwordSchema = z
+  .string()
+  .min(1, "Password is required")
+  .refine((password) => calculatePasswordStrength(password) >= 75, {
+    message:
+      "Password is too weak. It should contain uppercase, numbers, and special characters",
+  });
+
+const resetPasswordSchema = z
+  .object({
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type ResetPasswordFormValues = z.infer<typeof resetPasswordSchema>;
+
 export default function ResetPasswordPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isLoading, setIsLoading] = useState(false);
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState<string>("");
 
-  // Only check if we have a code parameter
   useEffect(() => {
     if (!searchParams.get("code")) {
       router.push("/auth/signin");
     }
   }, [searchParams, router]);
 
-  const calculatePasswordStrength = (password: string): number => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[0-9]/)) strength += 25;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 25;
-    return strength;
-  };
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(resetPasswordSchema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const passwordStrength = calculatePasswordStrength(password);
+  const { isSubmitting } = form.formState;
+  const passwordValue = form.watch("password");
+  const passwordStrength = calculatePasswordStrength(passwordValue);
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  async function onSubmit(values: ResetPasswordFormValues) {
     setError("");
-
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (passwordStrength < 75) {
-      setError("Please choose a stronger password");
-      return;
-    }
-
-    setIsLoading(true);
 
     try {
       const supabase = createClient();
       const { error: updateError } = await supabase.auth.updateUser({
-        password: password,
+        password: values.password,
       });
 
       if (updateError) {
@@ -76,8 +92,6 @@ export default function ResetPasswordPage() {
       setError(
         err instanceof Error ? err.message : "Failed to update password"
       );
-    } finally {
-      setIsLoading(false);
     }
   }
 
@@ -89,17 +103,21 @@ export default function ResetPasswordPage() {
           <CardDescription>Enter your new password below</CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="password">New Password</Label>
               <Input
                 id="password"
                 type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isSubmitting}
+                {...form.register("password")}
               />
-              {password && (
+              {form.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
+              {passwordValue && (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     Password strength:{" "}
@@ -119,18 +137,22 @@ export default function ResetPasswordPage() {
               <Input
                 id="confirmPassword"
                 type="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                disabled={isLoading}
+                disabled={isSubmitting}
+                {...form.register("confirmPassword")}
               />
+              {form.formState.errors.confirmPassword && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.confirmPassword.message}
+                </p>
+              )}
             </div>
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading && (
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Reset Password

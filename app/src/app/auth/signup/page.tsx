@@ -3,6 +3,9 @@
 import type React from "react";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,67 +23,70 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { createClient } from "@/lib/supabase/client";
 
+const calculatePasswordStrength = (password: string): number => {
+  let strength = 0;
+  if (password.length >= 8) strength += 25;
+  if (password.match(/[A-Z]/)) strength += 25;
+  if (password.match(/[0-9]/)) strength += 25;
+  if (password.match(/[^A-Za-z0-9]/)) strength += 25;
+  return strength;
+};
+
+const passwordSchema = z
+  .string()
+  .min(1, "Password is required")
+  .refine((password) => calculatePasswordStrength(password) >= 75, {
+    message:
+      "Password is too weak. It should contain uppercase, numbers, and special characters",
+  });
+
+const signUpSchema = z
+  .object({
+    name: z.string().min(1, "Full name is required"),
+    email: z.string().email("Please enter a valid email address"),
+    password: passwordSchema,
+    confirmPassword: z.string().min(1, "Please confirm your password"),
+    acceptTerms: z.boolean().refine((value) => value === true, {
+      message: "You must accept the terms and conditions",
+    }),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
+
+type SignUpFormValues = z.infer<typeof signUpSchema>;
+
 export default function SignUpPage() {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string>("");
 
-  const calculatePasswordStrength = (password: string): number => {
-    let strength = 0;
-    if (password.length >= 8) strength += 25;
-    if (password.match(/[A-Z]/)) strength += 25;
-    if (password.match(/[0-9]/)) strength += 25;
-    if (password.match(/[^A-Za-z0-9]/)) strength += 25;
-    return strength;
-  };
+  const form = useForm<SignUpFormValues>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+      acceptTerms: false,
+    },
+  });
 
-  const passwordStrength = calculatePasswordStrength(formData.password);
+  const { isSubmitting } = form.formState;
+  const passwordValue = form.watch("password");
+  const passwordStrength = calculatePasswordStrength(passwordValue);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+  async function onSubmit(values: SignUpFormValues) {
     setError("");
-  };
-
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-
-    if (!acceptTerms) {
-      setError("Please accept the terms and conditions");
-      return;
-    }
-
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-
-    if (passwordStrength < 75) {
-      setError("Please choose a stronger password");
-      return;
-    }
-
-    setIsLoading(true);
 
     try {
       const supabase = createClient();
       const { data, error: signUpError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
+        email: values.email,
+        password: values.password,
         options: {
           data: {
-            full_name: formData.name,
+            full_name: values.name,
           },
         },
       });
@@ -96,8 +102,28 @@ export default function SignUpPage() {
       setError(
         err instanceof Error ? err.message : "An error occurred during sign up"
       );
-    } finally {
-      setIsLoading(false);
+    }
+  }
+
+  async function signInWithGoogle() {
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/callback`,
+        },
+      });
+
+      if (oauthError) {
+        throw oauthError;
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during Google sign in"
+      );
     }
   }
 
@@ -113,47 +139,53 @@ export default function SignUpPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="name">Full Name</Label>
               <Input
                 id="name"
-                name="name"
                 placeholder="John Doe"
-                required
-                disabled={isLoading}
-                value={formData.name}
-                onChange={handleInputChange}
+                disabled={isSubmitting}
+                {...form.register("name")}
               />
+              {form.formState.errors.name && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.name.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
-                name="email"
                 placeholder="name@example.com"
                 type="email"
                 autoCapitalize="none"
                 autoComplete="email"
                 autoCorrect="off"
-                required
-                disabled={isLoading}
-                value={formData.email}
-                onChange={handleInputChange}
+                disabled={isSubmitting}
+                {...form.register("email")}
               />
+              {form.formState.errors.email && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
                 id="password"
-                name="password"
                 type="password"
-                required
-                disabled={isLoading}
-                value={formData.password}
-                onChange={handleInputChange}
+                disabled={isSubmitting}
+                {...form.register("password")}
               />
-              {formData.password && (
+              {form.formState.errors.password && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.password.message}
+                </p>
+              )}
+              {passwordValue && (
                 <div className="space-y-2">
                   <p className="text-sm text-muted-foreground">
                     Password strength:{" "}
@@ -172,24 +204,27 @@ export default function SignUpPage() {
               <Label htmlFor="confirmPassword">Confirm Password</Label>
               <Input
                 id="confirmPassword"
-                name="confirmPassword"
                 type="password"
-                required
-                disabled={isLoading}
-                value={formData.confirmPassword}
-                onChange={handleInputChange}
+                disabled={isSubmitting}
+                {...form.register("confirmPassword")}
               />
+              {form.formState.errors.confirmPassword && (
+                <p className="text-sm text-destructive">
+                  {form.formState.errors.confirmPassword.message}
+                </p>
+              )}
             </div>
             <div className="flex items-center space-x-2">
               <Checkbox
-                id="terms"
-                checked={acceptTerms}
-                onCheckedChange={(checked) =>
-                  setAcceptTerms(checked as boolean)
-                }
+                id="acceptTerms"
+                disabled={isSubmitting}
+                checked={form.watch("acceptTerms")}
+                onCheckedChange={(checked) => {
+                  form.setValue("acceptTerms", checked as boolean);
+                }}
               />
               <label
-                htmlFor="terms"
+                htmlFor="acceptTerms"
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I accept the{" "}
@@ -201,13 +236,18 @@ export default function SignUpPage() {
                 </a>
               </label>
             </div>
+            {form.formState.errors.acceptTerms && (
+              <p className="text-sm text-destructive">
+                {form.formState.errors.acceptTerms.message}
+              </p>
+            )}
             {error && (
               <Alert variant="destructive">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
-            <Button className="w-full" type="submit" disabled={isLoading}>
-              {isLoading && (
+            <Button className="w-full" type="submit" disabled={isSubmitting}>
+              {isSubmitting && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
               )}
               Create Account
@@ -226,10 +266,11 @@ export default function SignUpPage() {
           <Button
             variant="outline"
             type="button"
-            disabled={isLoading}
+            disabled={isSubmitting}
             className="w-full"
+            onClick={signInWithGoogle}
           >
-            {isLoading ? (
+            {isSubmitting ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
             ) : (
               <Icons.google className="mr-2 h-4 w-4" />
