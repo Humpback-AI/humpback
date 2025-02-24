@@ -38,9 +38,10 @@ export class SearchService {
 
     return {
       query: createSearchDto.query,
-      results: results.map((result) =>
-        ChunkPayloadSchema.parse(result.payload),
-      ),
+      results: results.map((result) => ({
+        ...ChunkPayloadSchema.parse(result.payload),
+        score: result.score,
+      })),
       total_results: results.length,
       time_taken: (Date.now() - startTime) / 1000, // Convert to seconds
     };
