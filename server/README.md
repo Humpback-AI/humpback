@@ -89,7 +89,9 @@ Key areas for server contributions:
 
 ## License
 
-The Humpback server is [MIT licensed](LICENSE).
+The Humpback server is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). See the [LICENSE](../LICENSE) file for details.
+
+For more information about the license terms and conditions, visit [creativecommons.org/licenses/by-nc-sa/4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 ## Resources
 

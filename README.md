@@ -58,17 +58,22 @@ Humpback solves these problems by creating a direct marketplace where:
 
 ## 📜 License
 
-Humpback is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+Humpback is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). See the [LICENSE](LICENSE) file for details.
 
-This means you can:
+This means you:
 
-- Use the software for commercial purposes
-- Modify the software
-- Distribute the software
-- Use and modify the software in private
-- Sublicense the software
+Can:
 
-The only requirement is that you include the original copyright and license notice in any copy of the software/source.
+- Share — copy and redistribute the material in any medium or format
+- Adapt — remix, transform, and build upon the material
+
+Under the following terms:
+
+- Attribution — You must give appropriate credit, provide a link to the license, and indicate if changes were made
+- NonCommercial — You may not use the material for commercial purposes
+- ShareAlike — If you remix, transform, or build upon the material, you must distribute your contributions under the same license as the original
+
+For more information, visit [creativecommons.org/licenses/by-nc-sa/4.0](https://creativecommons.org/licenses/by-nc-sa/4.0/).
 
 ## 🤝 Contributing
 
