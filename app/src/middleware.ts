@@ -73,27 +73,40 @@ export async function middleware(request: NextRequest) {
     return response;
   }
 
-  // Protected routes handling (add more routes as needed)
-  const protectedPaths = ["/overview", "/profile", "/settings"];
-  const isProtectedPath = protectedPaths.some((path) =>
-    request.nextUrl.pathname.startsWith(path)
-  );
+  // Allow access to root path
+  if (request.nextUrl.pathname === "/") {
+    return response;
+  }
 
-  if (isProtectedPath) {
-    // Redirect to login if user is not authenticated
-    if (!session) {
-      return NextResponse.redirect(new URL("/auth/signin", request.url));
-    }
+  // Protected routes handling (everything else)
+  // Redirect to login if user is not authenticated
+  if (!session) {
+    return NextResponse.redirect(new URL("/auth/signin", request.url));
+  }
 
-    // Redirect to verification page if user is not verified
-    if (!session.user.email_confirmed_at) {
-      return NextResponse.redirect(
-        new URL(
-          `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
-          request.url
-        )
-      );
-    }
+  // Redirect to verification page if user is not verified
+  if (!session.user.email_confirmed_at) {
+    return NextResponse.redirect(
+      new URL(
+        `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
+        request.url
+      )
+    );
+  }
+
+  // Check if user has any workspace roles
+  const { data: workspaceRoles } = await supabase
+    .from("workspace_roles")
+    .select("id")
+    .eq("user_id", session.user.id)
+    .limit(1);
+
+  // If user has no workspace roles, redirect to workspace creation
+  if (
+    !workspaceRoles?.length &&
+    request.nextUrl.pathname !== "/workspaces/create"
+  ) {
+    return NextResponse.redirect(new URL("/workspaces/create", request.url));
   }
 
   return response;
