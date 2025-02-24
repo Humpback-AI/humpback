@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,8 +18,10 @@ import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SignUpPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [formData, setFormData] = useState({
     name: "",
@@ -71,10 +74,28 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      // Add your signup logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch {
-      setError("An error occurred during sign up");
+      const supabase = createClient();
+      const { data, error: signUpError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.name,
+          },
+        },
+      });
+
+      if (signUpError) {
+        throw signUpError;
+      }
+
+      if (data.user) {
+        router.push("/");
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An error occurred during sign up"
+      );
     } finally {
       setIsLoading(false);
     }
@@ -220,7 +241,7 @@ export default function SignUpPage() {
           <div className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <a
-              href="/auth/login"
+              href="/auth/signin"
               className="text-primary underline-offset-4 hover:underline"
             >
               Sign in

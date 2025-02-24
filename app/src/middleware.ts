@@ -1,11 +1,11 @@
-import { createServerClient } from "@supabase/ssr";
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
+import { createServerClient, type CookieOptions } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
-export async function middleware(req: NextRequest) {
-  // Create the response early to modify cookies
-  let res = NextResponse.next({
-    request: req,
+export async function middleware(request: NextRequest) {
+  const response = NextResponse.next({
+    request: {
+      headers: request.headers,
+    },
   });
 
   const supabase = createServerClient(
@@ -13,47 +13,85 @@ export async function middleware(req: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() {
-          return req.cookies.getAll();
+        get(name: string) {
+          return request.cookies.get(name)?.value;
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) =>
-            req.cookies.set(name, value)
-          );
-          res = NextResponse.next({
-            request: req,
+        set(name: string, value: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value,
+            ...options,
           });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            res.cookies.set(name, value, options)
-          );
+        },
+        remove(name: string, options: CookieOptions) {
+          response.cookies.set({
+            name,
+            value: "",
+            ...options,
+          });
         },
       },
     }
   );
 
-  // Refresh the auth token
-  await supabase.auth.getUser();
-
-  // Check session status for route protection
   const {
     data: { session },
   } = await supabase.auth.getSession();
 
-  // If there's no session and the user is NOT on an auth page, redirect to login
-  if (!session && !req.nextUrl.pathname.startsWith("/auth")) {
-    const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = "/auth/login";
-    return NextResponse.redirect(redirectUrl);
+  // Auth routes handling
+  if (request.nextUrl.pathname.startsWith("/auth")) {
+    // Skip auth checks for the callback route
+    if (request.nextUrl.pathname === "/auth/callback") {
+      return response;
+    }
+
+    // If user is signed in and verified, redirect them away from auth pages
+    if (session?.user.email_confirmed_at) {
+      return NextResponse.redirect(new URL("/", request.url));
+    }
+
+    // If user is signed in but not verified, only allow access to verification page
+    if (session?.user && !session.user.email_confirmed_at) {
+      if (!request.nextUrl.pathname.startsWith("/auth/verify-email")) {
+        return NextResponse.redirect(
+          new URL(
+            `/auth/verify-email?email=${encodeURIComponent(
+              session.user.email!
+            )}`,
+            request.url
+          )
+        );
+      }
+    }
+
+    // Allow access to auth pages for non-authenticated users
+    return response;
   }
 
-  // If there's a session and the user is trying to access auth routes
-  if (session && req.nextUrl.pathname.startsWith("/auth")) {
-    const redirectUrl = req.nextUrl.clone();
-    redirectUrl.pathname = "/";
-    return NextResponse.redirect(redirectUrl);
+  // Protected routes handling (add more routes as needed)
+  const protectedPaths = ["/dashboard", "/profile", "/settings"];
+  const isProtectedPath = protectedPaths.some((path) =>
+    request.nextUrl.pathname.startsWith(path)
+  );
+
+  if (isProtectedPath) {
+    // Redirect to login if user is not authenticated
+    if (!session) {
+      return NextResponse.redirect(new URL("/auth/signin", request.url));
+    }
+
+    // Redirect to verification page if user is not verified
+    if (!session.user.email_confirmed_at) {
+      return NextResponse.redirect(
+        new URL(
+          `/auth/verify-email?email=${encodeURIComponent(session.user.email!)}`,
+          request.url
+        )
+      );
+    }
   }
 
-  return res;
+  return response;
 }
 
 export const config = {
@@ -63,8 +101,8 @@ export const config = {
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
-     * Feel free to modify this pattern to include more paths.
+     * - public (public files)
      */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
+    "/((?!_next/static|_next/image|favicon.ico|public).*)",
   ],
 };

@@ -2,6 +2,8 @@
 
 import type React from "react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,23 +18,62 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Icons } from "@/components/ui/icons";
 import { ForgotPasswordDialog } from "@/components/auth/ForgotPasswordDialog";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState<string>("");
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     setIsLoading(true);
+    setError("");
 
     try {
-      // Add your login logic here
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-    } catch (error) {
-      console.error(error);
+      const supabase = createClient();
+      const { error: signInError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (signInError) {
+        throw signInError;
+      }
+
+      // The middleware will handle the appropriate redirect
+      router.push("/");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error ? err.message : "An error occurred during sign in"
+      );
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function signInWithGoogle() {
+    try {
+      const supabase = createClient();
+      const { error: oauthError } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (oauthError) {
+        throw oauthError;
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "An error occurred during Google sign in"
+      );
     }
   }
 
@@ -74,6 +115,11 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
+            {error && (
+              <Alert variant="destructive">
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
             <Button className="w-full" type="submit" disabled={isLoading}>
               {isLoading && (
                 <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
@@ -96,6 +142,7 @@ export default function LoginPage() {
             type="button"
             disabled={isLoading}
             className="w-full"
+            onClick={signInWithGoogle}
           >
             {isLoading ? (
               <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
