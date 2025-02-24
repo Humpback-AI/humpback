@@ -26,6 +26,10 @@ export class ContentSyncProcessor {
     private readonly openaiClient: OpenAI,
   ) {}
 
+  private formatEmbeddingInput(title: string, content: string): string {
+    return `Title: ${title}\n\nContent: ${content}`;
+  }
+
   @Process('sync')
   async handleContentSync(job: Job<ContentSyncJob>) {
     this.logger.log(
@@ -49,7 +53,7 @@ export class ContentSyncProcessor {
 
       const embeddingResponse = await this.openaiClient.embeddings.create({
         model: 'text-embedding-3-small',
-        input: chunk.content,
+        input: this.formatEmbeddingInput(chunk.title, chunk.content),
         encoding_format: 'float',
       });
 
