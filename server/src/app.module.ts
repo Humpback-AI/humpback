@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import * as Joi from 'joi';
 
 import { AppController } from '@/app.controller';
 import { AppService } from '@/app.service';
@@ -16,7 +15,7 @@ import supabaseConfig from '@/config/supabase.config';
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
       load: [qdrantConfig, openaiConfig, supabaseConfig],
-      validationSchema: validationSchema as Joi.ObjectSchema,
+      validationSchema: validationSchema,
     }),
     SearchModule,
   ],

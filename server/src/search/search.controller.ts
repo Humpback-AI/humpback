@@ -19,10 +19,8 @@ export class SearchController {
   @Post()
   async create(
     @Body(ZodValidationPipe) createSearchDto: CreateSearchDto,
-    @ApiKey() apiKey: Tables<'api_keys'>,
+    @ApiKey() _apiKey: Tables<'api_keys'>,
   ): Promise<SearchResponseDto> {
-    // You can now use apiKey.id, apiKey.key, etc.
-    console.log(apiKey);
     return this.searchService.create(createSearchDto);
   }
 }
