@@ -41,11 +41,18 @@ export class SearchService {
       limit: createSearchDto.max_results,
     });
 
-    let searchResults = results.map((result) => ({
-      ...ChunkPayloadSchema.parse(result.payload),
-      score: result.score,
-      id: result.id,
-    }));
+    let searchResults = results.map((result) => {
+      const payload = ChunkPayloadSchema.parse(result.payload);
+      return {
+        source_url: payload.source_url,
+        title: payload.title,
+        created_at: payload.created_at,
+        updated_at: payload.updated_at,
+        content: payload.content,
+        score: result.score,
+        id: result.id,
+      };
+    });
 
     // If backfilling is enabled and we have a Tavily client
     if (
@@ -72,7 +79,6 @@ export class SearchService {
           created_at: new Date().toISOString(),
           updated_at: null,
           id: randomUUID(),
-          organization_id: 'tavily', // Special organization ID for Tavily results
         }));
 
         // Append Tavily results to our search results
