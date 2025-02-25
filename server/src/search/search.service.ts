@@ -152,13 +152,15 @@ export class SearchService {
   async create(createSearchDto: CreateSearchDto): Promise<SearchResponseDto> {
     const startTime = Date.now();
 
-    // Transform the query first
-    const transformedQuery = await this.transformQuery(createSearchDto.query);
+    // Transform the query if not skipped
+    const transformedQuery = createSearchDto.skip_transform
+      ? null
+      : await this.transformQuery(createSearchDto.query);
 
     // Generate embedding for the transformed search query
     const embeddingResponse = await this.openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: transformedQuery,
+      input: transformedQuery ?? createSearchDto.query,
     });
 
     const queryVector = embeddingResponse.data[0].embedding;
@@ -169,9 +171,12 @@ export class SearchService {
         vector: queryVector,
         limit: createSearchDto.max_results,
       }),
-      this.meilisearchClient.chunks.search(transformedQuery, {
-        limit: createSearchDto.max_results,
-      }),
+      this.meilisearchClient.chunks.search(
+        transformedQuery ?? createSearchDto.query,
+        {
+          limit: createSearchDto.max_results,
+        },
+      ),
     ]);
 
     // Process Qdrant results
@@ -209,7 +214,7 @@ export class SearchService {
     // Use transformed query for reranking
     combinedResults = await this.rerankResults(
       combinedResults,
-      transformedQuery,
+      transformedQuery ?? createSearchDto.query,
     );
 
     // Filter out results below the score threshold (20%)
@@ -222,7 +227,7 @@ export class SearchService {
     if (createSearchDto.should_backfill) {
       combinedResults = await this.backfillResults(
         combinedResults,
-        transformedQuery,
+        transformedQuery ?? createSearchDto.query,
         createSearchDto.max_results,
       );
     }

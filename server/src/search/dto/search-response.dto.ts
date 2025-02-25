@@ -12,7 +12,7 @@ const SearchResultSchema = z.object({
 
 const SearchResponseSchema = z.object({
   query: z.string(),
-  transformed_query: z.string(),
+  transformed_query: z.string().nullable(),
   results: z.array(SearchResultSchema),
   total_results: z.number().int().min(0),
   time_taken: z.number().min(0),
