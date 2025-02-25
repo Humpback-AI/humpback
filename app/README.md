@@ -40,5 +40,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - Search and data tables for the posts page -> time to flush it out a little more
 - Analytics with tinybird
 - Set a pricing on the chunks of data
+- Create a playground to see API results
 - Make app shell responsive
 - Rating system for human feedback?
