@@ -85,30 +85,30 @@ export default function PostsPage() {
           </Button>
         </div>
 
-        <div className="rounded-md border">
+        <div className="rounded-md border w-full">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[25%]">Title</TableHead>
-                <TableHead className="w-[35%]">Content</TableHead>
-                <TableHead className="w-[15%]">Created At</TableHead>
-                <TableHead className="w-[15%]">Updated At</TableHead>
-                <TableHead className="w-[10%]">Actions</TableHead>
+                <TableHead className="w-[200px]">Title</TableHead>
+                <TableHead className="w-[400px]">Content</TableHead>
+                <TableHead className="w-[120px]">Created at</TableHead>
+                <TableHead className="w-[120px]">Updated at</TableHead>
+                <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {chunks.map((chunk) => (
                 <TableRow key={chunk.id}>
-                  <TableCell className="truncate max-w-md">
+                  <TableCell className="max-w-[200px] truncate">
                     {chunk.title}
                   </TableCell>
-                  <TableCell className="truncate max-w-md">
+                  <TableCell className="max-w-[400px] truncate">
                     {chunk.content}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {new Date(chunk.created_at).toLocaleDateString()}
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-nowrap">
                     {chunk.updated_at
                       ? new Date(chunk.updated_at).toLocaleDateString()
                       : "-"}

@@ -37,7 +37,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## TODO
 
-- Simple flow to create update, delete chunks of data
+- Set up webhook to sync and index the chunk
+- Rely on meilisearch for traditional keyword search
+- Add pagination
 - Set a pricing on the chunks of data
 - Analytics with tinybird
 - Make app shell responsive
