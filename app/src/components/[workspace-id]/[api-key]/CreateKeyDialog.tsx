@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { PostgrestError } from "@supabase/supabase-js";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -67,10 +66,7 @@ export function CreateKeyDialog({
       onClose();
     },
     onError: (error) => {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to create API key";
+      const message = error.message || "Failed to create API key";
       toast.error("Error", { description: message });
     },
   });

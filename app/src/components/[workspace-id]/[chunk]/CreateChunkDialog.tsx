@@ -1,7 +1,6 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { PostgrestError } from "@supabase/supabase-js";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -91,10 +90,7 @@ export function CreateChunkDialog({
       onClose();
     },
     onError: (error) => {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to create post";
+      const message = error.message || "Failed to create post";
       toast.error("Error", { description: message });
     },
   });

@@ -18,6 +18,12 @@ export async function fetchApiKeys(workspaceId: string) {
 fetchApiKeys.key = "/modules/[workspace-id]/api-keys/actions/fetchApiKeys";
 
 export async function createApiKey(workspaceId: string, name: string) {
+  // Check existing API keys count
+  const existingKeys = await fetchApiKeys(workspaceId);
+  if (existingKeys.length >= 10) {
+    throw new Error("Maximum limit of 10 API keys reached");
+  }
+
   const key = generateApiKey({
     method: "base62",
     dashes: false,

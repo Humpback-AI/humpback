@@ -1,6 +1,5 @@
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
-import { PostgrestError } from "@supabase/supabase-js";
 
 import { type Tables } from "@/lib/supabase/types";
 import {
@@ -37,10 +36,7 @@ export function DeleteDialog({
       onClose();
     },
     onError: (error) => {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to delete API key";
+      const message = error.message || "Failed to delete API key";
       toast.error("Error", { description: message });
     },
   });

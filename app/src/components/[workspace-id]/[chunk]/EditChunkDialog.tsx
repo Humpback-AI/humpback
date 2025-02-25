@@ -1,6 +1,5 @@
 "use client";
 
-import { PostgrestError } from "@supabase/supabase-js";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -68,10 +67,7 @@ export function EditChunkDialog({
       onClose();
     },
     onError: (error) => {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to update post";
+      const message = error.message || "Failed to update post";
       toast.error("Error", { description: message });
     },
   });
