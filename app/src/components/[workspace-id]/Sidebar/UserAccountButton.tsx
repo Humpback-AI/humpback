@@ -71,8 +71,8 @@ export function UserAccountButton({ user }: Props) {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="h-8 w-8 rounded-full p-0">
-          <Avatar className="h-8 w-8">
+        <Button variant="ghost" className="h-6 w-6 rounded-full p-0">
+          <Avatar className="h-6 w-6">
             {userData.avatarUrl ? (
               <AvatarImage
                 src={userData.avatarUrl}
