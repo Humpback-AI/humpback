@@ -121,7 +121,7 @@ export function EditChunkDialog({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="source_url">Source URL (Optional)</Label>
+            <Label htmlFor="source_url">Source URL</Label>
             <Input
               id="source_url"
               placeholder="https://example.com"

@@ -15,14 +15,19 @@ export async function fetchChunks(workspaceId: string) {
 
 fetchChunks.key = "/modules/[workspace-id]/chunks/actions/fetchChunks";
 
-export async function createChunk(
-  workspaceId: string,
-  chunk: Omit<TablesInsert<"chunks">, "workspace_id">
-) {
+export async function createChunk({
+  workspaceId,
+  userId,
+  chunk,
+}: {
+  workspaceId: string;
+  userId: string;
+  chunk: Omit<TablesInsert<"chunks">, "workspace_id">;
+}) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("chunks")
-    .insert([{ ...chunk, workspace_id: workspaceId }])
+    .insert([{ ...chunk, workspace_id: workspaceId, user_id: userId }])
     .select()
     .single();
 
@@ -37,7 +42,7 @@ export async function updateChunk(
   const supabase = createClient();
   const { data, error } = await supabase
     .from("chunks")
-    .update(chunk)
+    .update({ ...chunk, updated_at: new Date().toISOString() })
     .eq("id", chunkId)
     .select()
     .single();

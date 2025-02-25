@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useEffect, useState } from "react";
 
 import {
   Dialog,
@@ -21,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createChunk } from "@/modules/[workspace-id]/chunks/actions";
+import { createClient } from "@/lib/supabase/client";
 
 const formSchema = z.object({
   title: z
@@ -46,6 +48,25 @@ export function CreateChunkDialog({
 }: CreateChunkDialogProps) {
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
+  const [userId, setUserId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -59,7 +80,8 @@ export function CreateChunkDialog({
   const { isSubmitting } = form.formState;
 
   const { mutate: createPost } = useMutation({
-    mutationFn: (values: FormValues) => createChunk(workspaceId, values),
+    mutationFn: (values: FormValues) =>
+      createChunk({ workspaceId, userId: userId!, chunk: values }),
     onSuccess: () => {
       toast.success("Post Created", {
         description: "Your post has been created successfully",
@@ -147,7 +169,7 @@ export function CreateChunkDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isSubmitting || !userId}>
               Create Post
             </Button>
           </DialogFooter>
