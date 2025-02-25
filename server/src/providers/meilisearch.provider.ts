@@ -9,7 +9,12 @@ export const MEILISEARCH_CLIENT = 'MEILISEARCH_CLIENT';
 
 export type MeilisearchClient = {
   client: MeiliSearch;
-  chunks: Index<ChunksIndex>;
+  chunks: Index<
+    Omit<ChunksIndex, 'created_at' | 'updated_at'> & {
+      created_at_timestamp: number;
+      updated_at_timestamp: number | null;
+    }
+  >;
 };
 
 export const MeilisearchProvider: Provider = {
@@ -34,6 +39,14 @@ export const MeilisearchProvider: Provider = {
       throw error;
     }
 
-    return { client, chunks: client.index<ChunksIndex>('chunks') };
+    return {
+      client,
+      chunks: client.index<
+        Omit<ChunksIndex, 'created_at' | 'updated_at'> & {
+          created_at_timestamp: number;
+          updated_at_timestamp: number | null;
+        }
+      >('chunks'),
+    };
   },
 };

@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import { type Tables } from "@/lib/supabase/types";
 import {
@@ -67,6 +68,7 @@ export function DeleteDialog({
             onClick={() => handleDelete(apiKey.id)}
             disabled={isPending}
           >
+            {isPending && <Loader2 className="animate-spin" />}
             Revoke key
           </Button>
         </DialogFooter>

@@ -37,8 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## TODO
 
-- Set up webhook to sync and index the chunk
-- Rely on meilisearch for traditional keyword search
 - Set a pricing on the chunks of data
 - Analytics with tinybird
 - Make app shell responsive

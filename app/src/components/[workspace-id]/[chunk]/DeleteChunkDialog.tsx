@@ -2,6 +2,7 @@
 
 import { toast } from "sonner";
 import { useMutation } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
 import { type Tables } from "@/lib/supabase/types";
 import {
@@ -70,6 +71,7 @@ export function DeleteChunkDialog({
             onClick={() => handleDelete(chunk.id)}
             disabled={isPending}
           >
+            {isPending && <Loader2 className="animate-spin" />}
             Delete Post
           </Button>
         </DialogFooter>
