@@ -19,7 +19,8 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@/*": ["src/*"],
-      "~/supabase/*": ["../supabase/*"]
+      "~/supabase/*": ["../supabase/*"],
+      "~/meilisearch/*": ["../meilisearch/*"]
     }
   }
 }
