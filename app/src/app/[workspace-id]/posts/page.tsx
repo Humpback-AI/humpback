@@ -5,6 +5,7 @@ import { Plus, Search, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
+import type { SearchResponse } from "meilisearch";
 
 import type { Tables } from "~/supabase/types";
 import { Button } from "@/components/ui/button";
@@ -15,7 +16,6 @@ import { EditChunkDialog } from "@/components/[workspace-id]/[chunk]/EditChunkDi
 import { DeleteChunkDialog } from "@/components/[workspace-id]/[chunk]/DeleteChunkDialog";
 import { DataTable } from "@/components/[workspace-id]/posts/DataTable";
 import { columns } from "@/components/[workspace-id]/posts/Columns";
-import type { SearchResponse } from "meilisearch";
 import type { ChunkPayload } from "~/meilisearch/types";
 
 const ITEMS_PER_PAGE = 10;
