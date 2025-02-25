@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useParams, usePathname } from "next/navigation";
-import { Home, Key } from "lucide-react";
+import { Home, Key, FileText } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
 import { UserAccountButton } from "@/components/[workspace-id]/Sidebar/UserAccountButton";
@@ -67,6 +67,25 @@ const Sidebar = () => {
               >
                 <Home />
                 <span>Home</span>
+              </Link>
+            </Button>
+          </li>
+          <li>
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start",
+                pathname === `/${workspaceId}/posts` &&
+                  "bg-accent text-accent-foreground"
+              )}
+              asChild
+            >
+              <Link
+                href={`/${workspaceId}/posts`}
+                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
+              >
+                <FileText />
+                <span>Posts</span>
               </Link>
             </Button>
           </li>
