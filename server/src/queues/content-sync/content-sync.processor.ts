@@ -8,6 +8,10 @@ import OpenAI from 'openai';
 import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
 import { SUPABASE_CLIENT } from '@/providers/supabase.provider';
 import { OPENAI_CLIENT } from '@/providers/openai.provider';
+import {
+  MEILISEARCH_CLIENT,
+  MeilisearchClient,
+} from '@/providers/meilisearch.provider';
 import { Database } from '@/providers/types/supabase.types';
 import { ChunkPayloadType } from '@/search/dto/chunk-payload.dto';
 
@@ -24,6 +28,8 @@ export class ContentSyncProcessor {
     private readonly supabaseClient: SupabaseClient<Database>,
     @Inject(OPENAI_CLIENT)
     private readonly openaiClient: OpenAI,
+    @Inject(MEILISEARCH_CLIENT)
+    private readonly meilisearchClient: MeilisearchClient,
   ) {}
 
   private formatEmbeddingInput(title: string, content: string): string {
@@ -54,15 +60,18 @@ export class ContentSyncProcessor {
         (id) => !existingChunkIds.has(id),
       );
 
-      // Delete non-existent chunks from Qdrant
+      // Delete non-existent chunks from both Qdrant and Meilisearch
       if (deletedChunkIds.length > 0) {
         this.logger.log(
           `Deleting chunks that no longer exist: ${deletedChunkIds.join(', ')}`,
         );
-        await this.qdrantClient.delete('chunks', {
-          wait: true,
-          points: deletedChunkIds,
-        });
+        await Promise.all([
+          this.qdrantClient.delete('chunks', {
+            wait: true,
+            points: deletedChunkIds,
+          }),
+          this.meilisearchClient.chunks.deleteDocuments(deletedChunkIds),
+        ]);
       }
 
       // If there are no chunks to process, we're done
@@ -92,14 +101,18 @@ export class ContentSyncProcessor {
         user_id: chunk.user_id,
       }));
 
-      await this.qdrantClient.upsert('chunks', {
-        wait: true,
-        points: payloads.map((payload, index) => ({
-          id: payload.id,
-          payload,
-          vector: embeddingResponse.data[index].embedding,
-        })),
-      });
+      // Update both Qdrant and Meilisearch
+      await Promise.all([
+        this.qdrantClient.upsert('chunks', {
+          wait: true,
+          points: payloads.map((payload, index) => ({
+            id: payload.id,
+            payload,
+            vector: embeddingResponse.data[index].embedding,
+          })),
+        }),
+        this.meilisearchClient.chunks.addDocuments(payloads),
+      ]);
 
       this.logger.log(
         `Successfully processed content sync job for chunk IDs: ${job.data.chunkIds.join(
