@@ -28,6 +28,8 @@ interface SearchResult {
   id: string;
 }
 
+const SCORE_THRESHOLD = 0.2;
+
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
@@ -45,6 +47,46 @@ export class SearchService {
     private readonly meilisearchClient: MeilisearchClient,
     private readonly configService: ConfigService,
   ) {}
+
+  private async transformQuery(query: string): Promise<string> {
+    try {
+      const response = await this.openai.chat.completions.create({
+        model: 'gpt-4o-mini',
+        messages: [
+          {
+            role: 'system',
+            content:
+              'You are a search query optimization expert. Transform the given query to make it ' +
+              'more effective for semantic search while preserving its original intent. ' +
+              'Your task is to:\n\n' +
+              '1. Focus on key concepts and remove unnecessary words\n' +
+              '2. Format the query as a keyword-rich phrase rather than a question\n' +
+              '3. Make the query broad enough to capture relevant information\n' +
+              '4. Ensure the transformed query is search-friendly and optimized for semantic ' +
+              'matching\n\n' +
+              'Return only the transformed query without any explanation.',
+          },
+          {
+            role: 'user',
+            content: query,
+          },
+        ],
+        temperature: 0.3,
+        max_tokens: 100,
+      });
+
+      const transformedQuery =
+        response.choices[0].message.content?.trim() || query;
+
+      this.logger.debug(
+        `Original query: "${query}" -> Transformed: "${transformedQuery}"`,
+      );
+      return transformedQuery;
+    } catch (error) {
+      this.logger.error('Failed to transform query:', error);
+      return query; // Fallback to original query if transformation fails
+    }
+  }
 
   private async rerankResults(
     results: SearchResult[],
@@ -110,21 +152,24 @@ export class SearchService {
   async create(createSearchDto: CreateSearchDto): Promise<SearchResponseDto> {
     const startTime = Date.now();
 
-    // Generate embedding for the search query
+    // Transform the query first
+    const transformedQuery = await this.transformQuery(createSearchDto.query);
+
+    // Generate embedding for the transformed search query
     const embeddingResponse = await this.openai.embeddings.create({
       model: 'text-embedding-3-small',
-      input: createSearchDto.query,
+      input: transformedQuery,
     });
 
     const queryVector = embeddingResponse.data[0].embedding;
 
-    // Run Qdrant and Meilisearch searches in parallel
+    // Run Qdrant and Meilisearch searches in parallel with transformed query
     const [qdrantResults, meilisearchResults] = await Promise.all([
       this.qdrantClient.search('chunks', {
         vector: queryVector,
         limit: createSearchDto.max_results,
       }),
-      this.meilisearchClient.chunks.search(createSearchDto.query, {
+      this.meilisearchClient.chunks.search(transformedQuery, {
         limit: createSearchDto.max_results,
       }),
     ]);
@@ -161,24 +206,30 @@ export class SearchService {
       (result) => result.id,
     );
 
-    // Rerank the combined results using Cohere
+    // Use transformed query for reranking
     combinedResults = await this.rerankResults(
       combinedResults,
-      createSearchDto.query,
+      transformedQuery,
+    );
+
+    // Filter out results below the score threshold (20%)
+    combinedResults = combinedResults.filter(
+      (result) => result.score >= SCORE_THRESHOLD,
     );
     combinedResults = combinedResults.slice(0, createSearchDto.max_results);
 
-    // Backfill results if needed using Tavily
+    // Use transformed query for backfilling
     if (createSearchDto.should_backfill) {
       combinedResults = await this.backfillResults(
         combinedResults,
-        createSearchDto.query,
+        transformedQuery,
         createSearchDto.max_results,
       );
     }
 
     return {
-      query: createSearchDto.query,
+      query: createSearchDto.query, // Return original query in response
+      transformed_query: transformedQuery, // Add transformed query to response
       results: combinedResults,
       total_results: combinedResults.length,
       time_taken: (Date.now() - startTime) / 1_000,
