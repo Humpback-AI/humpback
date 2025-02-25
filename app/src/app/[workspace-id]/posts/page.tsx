@@ -1,33 +1,18 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
+import type { Tables } from "~/supabase/types";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { fetchChunks } from "@/modules/[workspace-id]/chunks/actions";
 import { CreateChunkDialog } from "@/components/[workspace-id]/[chunk]/CreateChunkDialog";
 import { EditChunkDialog } from "@/components/[workspace-id]/[chunk]/EditChunkDialog";
 import { DeleteChunkDialog } from "@/components/[workspace-id]/[chunk]/DeleteChunkDialog";
-import type { Tables } from "~/supabase/types";
+import { DataTable } from "@/components/[workspace-id]/posts/DataTable";
+import { columns } from "@/components/[workspace-id]/posts/Columns";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -51,6 +36,27 @@ export default function PostsPage() {
     queryKey: ["chunks", workspaceId, page],
     queryFn: () => fetchChunks(workspaceId, page, ITEMS_PER_PAGE),
   });
+
+  useEffect(() => {
+    const handleEditPost = (event: CustomEvent<Tables<"chunks">>) => {
+      setEditingChunk(event.detail);
+    };
+
+    const handleDeletePost = (event: CustomEvent<Tables<"chunks">>) => {
+      setDeletingChunk(event.detail);
+    };
+
+    window.addEventListener("EDIT_POST", handleEditPost as EventListener);
+    window.addEventListener("DELETE_POST", handleDeletePost as EventListener);
+
+    return () => {
+      window.removeEventListener("EDIT_POST", handleEditPost as EventListener);
+      window.removeEventListener(
+        "DELETE_POST",
+        handleDeletePost as EventListener
+      );
+    };
+  }, []);
 
   const chunks = chunksData?.data ?? [];
   const totalPages = chunksData
@@ -102,136 +108,13 @@ export default function PostsPage() {
           </Button>
         </div>
 
-        <div className="rounded-md border overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[25%] max-w-[200px]">Title</TableHead>
-                  <TableHead className="w-[35%] max-w-[200px]">
-                    Content
-                  </TableHead>
-                  <TableHead className="w-[15%]">Created at</TableHead>
-                  <TableHead className="w-[15%]">Updated at</TableHead>
-                  <TableHead className="w-[10%]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {chunks.map((chunk) => (
-                  <TableRow key={chunk.id}>
-                    <TableCell className="truncate max-w-[200px]">
-                      {chunk.title}
-                    </TableCell>
-                    <TableCell className="truncate max-w-[200px]">
-                      {chunk.content}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {chunk.created_at &&
-                        new Date(chunk.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {chunk.updated_at
-                        ? new Date(chunk.updated_at).toLocaleDateString()
-                        : "-"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setEditingChunk(chunk as Tables<"chunks">)
-                          }
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setDeletingChunk(chunk as Tables<"chunks">)
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {chunks.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">
-                      {isLoading ? "Loading..." : "No posts found"}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {totalPages > 1 && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page > 1) setPage(page - 1);
-                  }}
-                  className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => {
-                  // Show first page, last page, and pages around current page
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= page - 1 && pageNum <= page + 1)
-                  ) {
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationLink
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPage(pageNum);
-                          }}
-                          isActive={page === pageNum}
-                        >
-                          {pageNum}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  } else if (pageNum === page - 2 || pageNum === page + 2) {
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-                  return null;
-                }
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page < totalPages) setPage(page + 1);
-                  }}
-                  className={
-                    page >= totalPages ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+        <DataTable
+          columns={columns}
+          data={chunks}
+          pageCount={totalPages}
+          currentPage={page}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
