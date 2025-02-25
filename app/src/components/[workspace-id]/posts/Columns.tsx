@@ -58,7 +58,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     id: "actions",
-    header: "",
+    header: "Actions",
     cell: ({ row }) => {
       const post = row.original;
 

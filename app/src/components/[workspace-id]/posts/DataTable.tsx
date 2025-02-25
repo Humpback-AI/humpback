@@ -71,7 +71,13 @@ export function DataTable<TData, TValue>({
                     return (
                       <TableHead
                         key={header.id}
-                        className="whitespace-nowrap w-full max-w-[25%]"
+                        className={`whitespace-nowrap w-full ${
+                          header.id === "title" || header.id === "content"
+                            ? "max-w-[30%]"
+                            : header.id === "actions"
+                            ? "max-w-[0%] opacity-0"
+                            : "max-w-[25%]"
+                        }`}
                       >
                         {header.isPlaceholder
                           ? null
