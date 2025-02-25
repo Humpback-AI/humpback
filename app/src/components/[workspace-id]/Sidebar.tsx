@@ -66,7 +66,7 @@ const Sidebar = () => {
                 className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
               >
                 <Home />
-                <span>Overview</span>
+                <span>Home</span>
               </Link>
             </Button>
           </li>
