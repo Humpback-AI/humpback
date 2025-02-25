@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { PostgrestError } from "@supabase/supabase-js";
@@ -15,8 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { createClient } from "@/lib/supabase/client";
-import { Tables } from "@/lib/supabase/types";
+import type { Tables } from "@/lib/supabase/types";
+import {
+  createApiKey,
+  deleteApiKey,
+  fetchApiKeys,
+} from "@/modules/[workspace-id]/api-keys/actions";
 
 type ApiKey = Tables<"api_keys">;
 
@@ -26,35 +30,36 @@ export default function ApiKeysPage() {
   const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const supabase = createClient();
-
-  async function createApiKey() {
+  const fetchKeys = useCallback(async () => {
     try {
       setIsLoading(true);
-      const key = crypto.randomUUID();
-      const hashedKey = await crypto.subtle
-        .digest("SHA-256", new TextEncoder().encode(key))
-        .then((hash) =>
-          Array.from(new Uint8Array(hash))
-            .map((b) => b.toString(16).padStart(2, "0"))
-            .join("")
-        );
+      const data = await fetchApiKeys(workspaceId);
+      setApiKeys(data);
+    } catch (error) {
+      const message =
+        error instanceof PostgrestError
+          ? error.message
+          : "Failed to fetch API keys";
+      toast.error("Error", { description: message });
+    } finally {
+      setIsLoading(false);
+    }
+  }, [workspaceId]);
 
-      const { error } = await supabase.from("api_keys").insert([
-        {
-          hashed_key: hashedKey,
-          workspace_id: workspaceId,
-        },
-      ]);
-
-      if (error) throw error;
+  async function handleCreateKey() {
+    try {
+      setIsLoading(true);
+      const key = await createApiKey(workspaceId);
 
       toast.success("API Key Created", {
-        description: `Your new API key is: ${key}\nPlease save this key as it won't be shown again.`,
+        description: (
+          <div className="mt-2 font-mono text-xs break-all">{key}</div>
+        ),
+        duration: 10000,
       });
 
       // Refresh the list
-      fetchApiKeys();
+      fetchKeys();
     } catch (error) {
       const message =
         error instanceof PostgrestError
@@ -66,19 +71,17 @@ export default function ApiKeysPage() {
     }
   }
 
-  async function deleteApiKey(id: string) {
+  async function handleDeleteKey(id: string) {
     try {
       setIsLoading(true);
-      const { error } = await supabase.from("api_keys").delete().eq("id", id);
-
-      if (error) throw error;
+      await deleteApiKey(id);
 
       toast.success("API Key Deleted", {
         description: "The API key has been deleted successfully",
       });
 
       // Refresh the list
-      fetchApiKeys();
+      fetchKeys();
     } catch (error) {
       const message =
         error instanceof PostgrestError
@@ -90,33 +93,10 @@ export default function ApiKeysPage() {
     }
   }
 
-  async function fetchApiKeys() {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from("api_keys")
-        .select("*")
-        .eq("workspace_id", workspaceId)
-        .order("created_at", { ascending: false });
-
-      if (error) throw error;
-
-      setApiKeys(data || []);
-    } catch (error) {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to fetch API keys";
-      toast.error("Error", { description: message });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
   // Fetch API keys on component mount
   useEffect(() => {
-    fetchApiKeys();
-  }, []);
+    fetchKeys();
+  }, [fetchKeys]);
 
   return (
     <div className="container mx-auto py-10">
@@ -130,7 +110,7 @@ export default function ApiKeysPage() {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={createApiKey} disabled={isLoading}>
+          <Button onClick={handleCreateKey} disabled={isLoading}>
             <Plus className="mr-2 h-4 w-4" />
             Create New Key
           </Button>
@@ -156,7 +136,7 @@ export default function ApiKeysPage() {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => deleteApiKey(key.id)}
+                      onClick={() => handleDeleteKey(key.id)}
                       disabled={isLoading}
                     >
                       <Trash2 className="h-4 w-4" />
