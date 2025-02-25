@@ -1,14 +1,12 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { MoreHorizontal, Pencil, Trash2, ArrowUpDown } from "lucide-react";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { Tables } from "~/supabase/types";
@@ -18,18 +16,7 @@ export type Post = Tables<"chunks">;
 export const columns: ColumnDef<Post>[] = [
   {
     accessorKey: "title",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
-          Title
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Title",
     cell: ({ row }) => {
       return (
         <div className="truncate max-w-[200px]">{row.getValue("title")}</div>
@@ -38,18 +25,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "content",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start"
-        >
-          Content
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Content",
     cell: ({ row }) => {
       return (
         <div className="truncate max-w-[200px]">{row.getValue("content")}</div>
@@ -58,18 +34,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "created_at",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start whitespace-nowrap"
-        >
-          Created at
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Created at",
     cell: ({ row }) => {
       const date = row.getValue("created_at") as string;
       return (
@@ -81,18 +46,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     accessorKey: "updated_at",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="w-full justify-start whitespace-nowrap"
-        >
-          Updated at
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      );
-    },
+    header: "Updated at",
     cell: ({ row }) => {
       const date = row.getValue("updated_at") as string;
       return (
@@ -104,6 +58,7 @@ export const columns: ColumnDef<Post>[] = [
   },
   {
     id: "actions",
+    header: "",
     cell: ({ row }) => {
       const post = row.original;
 
@@ -116,13 +71,6 @@ export const columns: ColumnDef<Post>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(post.id)}
-            >
-              Copy post ID
-            </DropdownMenuItem>
             <DropdownMenuItem
               onClick={() =>
                 window.dispatchEvent(
