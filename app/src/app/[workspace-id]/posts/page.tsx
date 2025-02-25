@@ -87,8 +87,8 @@ export default function PostsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your posts and content. Create, edit, and delete posts as
-            needed.
+            Manage your posts and content. All posts will be available through
+            Humpback&apos;s search API.
           </p>
         </div>
 

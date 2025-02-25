@@ -38,6 +38,7 @@ export class SearchService {
 
     const queryVector = embeddingResponse.data[0].embedding;
 
+    // TODO: Maybe add a cutoff for the score?
     const results = await this.qdrantClient.search('chunks', {
       vector: queryVector,
       limit: createSearchDto.max_results,
