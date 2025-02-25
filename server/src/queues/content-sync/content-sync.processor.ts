@@ -4,7 +4,6 @@ import { Job } from 'bull';
 import { QdrantClient } from '@qdrant/js-client-rest';
 import { SupabaseClient } from '@supabase/supabase-js';
 import OpenAI from 'openai';
-import * as R from 'remeda';
 
 import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
 import { SUPABASE_CLIENT } from '@/providers/supabase.provider';
@@ -114,10 +113,11 @@ export class ContentSyncProcessor {
         }),
         this.meilisearchClient.chunks.addDocuments(
           payloads.map((payload) => ({
-            ...R.omit(payload, ['created_at', 'updated_at']),
-            created_at_timestamp: new Date(payload.created_at).getTime(),
+            ...payload,
+            created_at_timestamp:
+              new Date(payload.created_at).getTime() / 1_000,
             updated_at_timestamp: payload.updated_at
-              ? new Date(payload.updated_at).getTime()
+              ? new Date(payload.updated_at).getTime() / 1_000
               : null,
           })),
           { primaryKey: 'id' },
