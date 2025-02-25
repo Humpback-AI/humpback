@@ -143,7 +143,7 @@ export default function PostsPage() {
             />
           </div>
           <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="mr-2 h-4 w-4" />
+            <Plus />
             Create new post
           </Button>
         </div>
