@@ -17,7 +17,7 @@ export async function fetchApiKeys(workspaceId: string) {
 
 fetchApiKeys.key = "/modules/[workspace-id]/api-keys/actions/fetchApiKeys";
 
-export async function createApiKey(workspaceId: string) {
+export async function createApiKey(workspaceId: string, name: string) {
   const key = generateApiKey({
     method: "base62",
     dashes: false,
@@ -28,6 +28,7 @@ export async function createApiKey(workspaceId: string) {
   const { error } = await supabase.from("api_keys").insert([
     {
       key: prefixedKey,
+      name,
       workspace_id: workspaceId,
     },
   ]);

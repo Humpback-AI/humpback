@@ -11,9 +11,10 @@ import { DeleteDialog } from "./Row/DeleteDialog";
 
 interface Props {
   apiKey: Tables<"api_keys">;
+  onDelete: () => void;
 }
 
-export default function Row({ apiKey }: Props) {
+export default function Row({ apiKey, onDelete }: Props) {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
   return (
@@ -22,9 +23,11 @@ export default function Row({ apiKey }: Props) {
         apiKey={apiKey}
         isOpen={showDeleteDialog}
         onClose={() => setShowDeleteDialog(false)}
+        onSuccess={onDelete}
       />
 
       <TableRow>
+        <TableCell>{apiKey.name}</TableCell>
         <TableCell>
           <ApiKeyCell value={apiKey.key} />
         </TableCell>

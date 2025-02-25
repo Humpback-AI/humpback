@@ -1,6 +1,6 @@
 import { toast } from "sonner";
-import { useParams } from "next/navigation";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation } from "@tanstack/react-query";
+import { PostgrestError } from "@supabase/supabase-js";
 
 import { type Tables } from "@/lib/supabase/types";
 import {
@@ -12,32 +12,28 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { PostgrestError } from "@supabase/supabase-js";
-import {
-  deleteApiKey,
-  fetchApiKeys,
-} from "@/modules/[workspace-id]/api-keys/actions";
+import { deleteApiKey } from "@/modules/[workspace-id]/api-keys/actions";
 
 interface DeleteDialogProps {
   apiKey: Tables<"api_keys">;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-export function DeleteDialog({ apiKey, isOpen, onClose }: DeleteDialogProps) {
-  const params = useParams();
-  const workspaceId = params["workspace-id"] as string;
-  const queryClient = useQueryClient();
-
-  const { mutate: handleDelete, isPending: isLoading } = useMutation({
+export function DeleteDialog({
+  apiKey,
+  isOpen,
+  onClose,
+  onSuccess,
+}: DeleteDialogProps) {
+  const { mutate: handleDelete, isPending } = useMutation({
     mutationFn: deleteApiKey,
     onSuccess: () => {
       toast.success("API Key Deleted", {
         description: "The API key has been deleted successfully",
       });
-      queryClient.invalidateQueries({
-        queryKey: [fetchApiKeys.key, workspaceId],
-      });
+      onSuccess();
       onClose();
     },
     onError: (error) => {
@@ -67,13 +63,13 @@ export function DeleteDialog({ apiKey, isOpen, onClose }: DeleteDialogProps) {
           </div>
         </div>
         <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
+          <Button variant="ghost" onClick={onClose} disabled={isPending}>
             Cancel
           </Button>
           <Button
             variant="destructive"
             onClick={() => handleDelete(apiKey.id)}
-            disabled={isLoading}
+            disabled={isPending}
           >
             Revoke key
           </Button>

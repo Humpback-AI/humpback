@@ -39,6 +39,7 @@ export type Database = {
           created_at: string;
           id: string;
           key: string;
+          name: string;
           updated_at: string | null;
           workspace_id: string;
         };
@@ -46,6 +47,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           key: string;
+          name: string;
           updated_at?: string | null;
           workspace_id: string;
         };
@@ -53,6 +55,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           key?: string;
+          name?: string;
           updated_at?: string | null;
           workspace_id?: string;
         };
