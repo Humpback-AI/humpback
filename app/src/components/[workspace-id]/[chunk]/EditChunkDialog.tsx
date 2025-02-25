@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -54,9 +55,7 @@ export function EditChunkDialog({
     },
   });
 
-  const { isSubmitting } = form.formState;
-
-  const { mutate: editPost } = useMutation({
+  const { mutate: editPost, isPending } = useMutation({
     mutationFn: (values: FormValues) => updateChunk(chunk.id, values),
     onSuccess: () => {
       toast.success("Post Updated", {
@@ -90,7 +89,7 @@ export function EditChunkDialog({
             <Input
               id="title"
               placeholder="Enter post title"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("title")}
             />
             {form.formState.errors.title && (
@@ -106,7 +105,7 @@ export function EditChunkDialog({
               id="content"
               placeholder="Write your post content here..."
               className="h-32"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("content")}
             />
             {form.formState.errors.content && (
@@ -121,7 +120,7 @@ export function EditChunkDialog({
             <Input
               id="source_url"
               placeholder="https://example.com"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("source_url")}
             />
             {form.formState.errors.source_url && (
@@ -136,11 +135,12 @@ export function EditChunkDialog({
               type="button"
               variant="ghost"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="animate-spin" />}
               Save Changes
             </Button>
           </DialogFooter>
