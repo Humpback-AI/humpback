@@ -4,6 +4,7 @@ import { BullModule } from '@nestjs/bull';
 import { QdrantProvider } from '@/providers/qdrant.provider';
 import { SupabaseProvider } from '@/providers/supabase.provider';
 import { OpenAIProvider } from '@/providers/openai.provider';
+import { MeilisearchProvider } from '@/providers/meilisearch.provider';
 
 import { ContentSyncProcessor } from './content-sync.processor';
 import { ContentSyncService } from './content-sync.service';
@@ -20,6 +21,7 @@ import { ContentSyncService } from './content-sync.service';
     QdrantProvider,
     SupabaseProvider,
     OpenAIProvider,
+    MeilisearchProvider,
   ],
   exports: [ContentSyncService],
 })

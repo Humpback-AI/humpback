@@ -1,12 +1,12 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { PostgrestError } from "@supabase/supabase-js";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -51,9 +51,7 @@ export function CreateKeyDialog({
     },
   });
 
-  const { isSubmitting } = form.formState;
-
-  const { mutate: createKey } = useMutation({
+  const { mutate: createKey, isPending } = useMutation({
     mutationFn: (values: FormValues) => createApiKey(workspaceId, values.name),
     onSuccess: (key) => {
       toast.success("API Key Created", {
@@ -67,10 +65,7 @@ export function CreateKeyDialog({
       onClose();
     },
     onError: (error) => {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to create API key";
+      const message = error.message || "Failed to create API key";
       toast.error("Error", { description: message });
     },
   });
@@ -95,7 +90,7 @@ export function CreateKeyDialog({
             <Input
               id="name"
               placeholder="e.g., Production"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("name")}
             />
             {form.formState.errors.name && (
@@ -110,11 +105,12 @@ export function CreateKeyDialog({
               type="button"
               variant="ghost"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button type="submit" disabled={isPending}>
+              {isPending && <Loader2 className="animate-spin" />}
               Create Key
             </Button>
           </DialogFooter>

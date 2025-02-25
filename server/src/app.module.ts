@@ -13,6 +13,7 @@ import openaiConfig from './config/openai.config';
 import supabaseConfig from './config/supabase.config';
 import internalConfig from './config/internal.config';
 import tavilyConfig from './config/tavily.config';
+import meilisearchConfig from './config/meilisearch.config';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
@@ -39,6 +40,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
         supabaseConfig,
         internalConfig,
         tavilyConfig,
+        meilisearchConfig,
       ],
       validationSchema: validationSchema,
     }),

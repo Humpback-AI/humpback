@@ -8,10 +8,10 @@ import { randomUUID } from 'crypto';
 import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
 import { OPENAI_CLIENT } from '@/providers/openai.provider';
 import { TAVILY_CLIENT } from '@/providers/tavily.provider';
+import { ChunkPayloadSchema } from '@/providers/schemas/qdrant.schema';
 
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
-import { ChunkPayloadSchema } from './dto/chunk-payload.dto';
 
 @Injectable()
 export class SearchService {

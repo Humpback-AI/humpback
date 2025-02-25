@@ -33,7 +33,7 @@ export default function ApiKeysPage() {
   });
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 max-w-screen-xl">
       <CreateKeyDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
@@ -54,8 +54,8 @@ export default function ApiKeysPage() {
             onClick={() => setShowCreateDialog(true)}
             disabled={isLoading}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Key
+            <Plus />
+            Create new key
           </Button>
         </div>
 

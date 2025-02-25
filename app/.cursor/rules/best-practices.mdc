@@ -1,0 +1,14 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+
+# Your rule content
+
+- When defining new pages, make sure to add max-w-screen-xl so that the page does not take up the full width of the screen which can be jarring on a widescreen monitor. See [page.tsx](mdc:src/app/[workspace-id]/posts/page.tsx) for example.
+- Make sure to rely on shadcn here since this project is built using shadcn. For reference on available components, see the components/ui folder
+- Use react-query for all API calls even if they're using supabase. Define your actions in an actions.ts folder, see /modules/../actions for example
+- Use react hook forms and zod + zod resolver for all forms
+- Try not to use console print statements.
+
