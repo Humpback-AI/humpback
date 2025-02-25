@@ -6,6 +6,7 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
   app.useLogger(app.get(Logger));
+  app.setGlobalPrefix('v1');
 
   // Enable CORS with custom configuration
   app.enableCors({

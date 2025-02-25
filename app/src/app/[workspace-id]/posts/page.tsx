@@ -1,40 +1,32 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Search, Loader2 } from "lucide-react";
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
+import { useDebouncedCallback } from "use-debounce";
+import type { SearchResponse } from "meilisearch";
 
+import type { Tables } from "~/supabase/types";
 import { Button } from "@/components/ui/button";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
 import { fetchChunks } from "@/modules/[workspace-id]/chunks/actions";
 import { CreateChunkDialog } from "@/components/[workspace-id]/[chunk]/CreateChunkDialog";
 import { EditChunkDialog } from "@/components/[workspace-id]/[chunk]/EditChunkDialog";
 import { DeleteChunkDialog } from "@/components/[workspace-id]/[chunk]/DeleteChunkDialog";
-import type { Tables } from "~/supabase/types";
+import { DataTable } from "@/components/[workspace-id]/posts/DataTable";
+import { columns } from "@/components/[workspace-id]/posts/Columns";
+import type { ChunkPayload } from "~/meilisearch/types";
 
 const ITEMS_PER_PAGE = 10;
+const DEBOUNCE_MS = 300;
 
 export default function PostsPage() {
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
   const [page, setPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [editingChunk, setEditingChunk] = useState<Tables<"chunks"> | null>(
     null
@@ -43,19 +35,57 @@ export default function PostsPage() {
     null
   );
 
+  const debouncedSearch = useDebouncedCallback((value: string) => {
+    setDebouncedQuery(value);
+    setPage(1); // Reset to first page when searching
+  }, DEBOUNCE_MS);
+
   const {
     data: chunksData,
-    isLoading,
+    isPending,
     refetch,
-  } = useQuery({
-    queryKey: ["chunks", workspaceId, page],
-    queryFn: () => fetchChunks(workspaceId, page, ITEMS_PER_PAGE),
+  } = useQuery<
+    SearchResponse<ChunkPayload, { hitsPerPage: number; page: number }>
+  >({
+    queryKey: ["chunks", workspaceId, page, debouncedQuery],
+    queryFn: () =>
+      fetchChunks({
+        query: debouncedQuery,
+        page,
+        hitsPerPage: ITEMS_PER_PAGE,
+        workspaceId,
+      }),
+    placeholderData: (previousData) => previousData,
   });
 
-  const chunks = chunksData?.data ?? [];
-  const totalPages = chunksData
-    ? Math.ceil(chunksData.total / ITEMS_PER_PAGE)
-    : 0;
+  useEffect(() => {
+    const handleEditPost = (event: CustomEvent<Tables<"chunks">>) => {
+      setEditingChunk(event.detail);
+    };
+
+    const handleDeletePost = (event: CustomEvent<Tables<"chunks">>) => {
+      setDeletingChunk(event.detail);
+    };
+
+    window.addEventListener("EDIT_POST", handleEditPost as EventListener);
+    window.addEventListener("DELETE_POST", handleDeletePost as EventListener);
+
+    return () => {
+      window.removeEventListener("EDIT_POST", handleEditPost as EventListener);
+      window.removeEventListener(
+        "DELETE_POST",
+        handleDeletePost as EventListener
+      );
+    };
+  }, []);
+
+  const chunks = chunksData?.hits ?? [];
+  const totalPages = chunksData?.totalPages ?? 0;
+
+  const handleSearch = (value: string) => {
+    setSearchQuery(value);
+    debouncedSearch(value);
+  };
 
   return (
     <div className="container mx-auto py-10 max-w-screen-xl">
@@ -87,151 +117,44 @@ export default function PostsPage() {
         <div>
           <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
           <p className="text-muted-foreground mt-2">
-            Manage your posts and content. Create, edit, and delete posts as
-            needed.
+            Manage your posts and content. All posts will be available through
+            Humpback&apos;s search API.
           </p>
         </div>
 
-        <div className="flex justify-end">
-          <Button
-            onClick={() => setShowCreateDialog(true)}
-            disabled={isLoading}
-          >
+        <div className="flex justify-between items-center gap-4">
+          <div className="relative flex-1 max-w-sm">
+            {isPending ? (
+              <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 animate-spin" />
+            ) : (
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            )}
+            <Input
+              type="text"
+              placeholder="Search posts..."
+              value={searchQuery}
+              onChange={(e) => handleSearch(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  debouncedSearch.flush();
+                }
+              }}
+              className="pl-9"
+            />
+          </div>
+          <Button onClick={() => setShowCreateDialog(true)}>
             <Plus />
             Create new post
           </Button>
         </div>
 
-        <div className="rounded-md border overflow-hidden">
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="w-[25%] max-w-[200px]">Title</TableHead>
-                  <TableHead className="w-[35%] max-w-[200px]">
-                    Content
-                  </TableHead>
-                  <TableHead className="w-[15%]">Created at</TableHead>
-                  <TableHead className="w-[15%]">Updated at</TableHead>
-                  <TableHead className="w-[10%]">Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {chunks.map((chunk) => (
-                  <TableRow key={chunk.id}>
-                    <TableCell className="truncate max-w-[200px]">
-                      {chunk.title}
-                    </TableCell>
-                    <TableCell className="truncate max-w-[200px]">
-                      {chunk.content}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {chunk.created_at &&
-                        new Date(chunk.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell className="whitespace-nowrap">
-                      {chunk.updated_at
-                        ? new Date(chunk.updated_at).toLocaleDateString()
-                        : "-"}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setEditingChunk(chunk as Tables<"chunks">)
-                          }
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() =>
-                            setDeletingChunk(chunk as Tables<"chunks">)
-                          }
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-                {chunks.length === 0 && (
-                  <TableRow>
-                    <TableCell colSpan={5} className="text-center">
-                      {isLoading ? "Loading..." : "No posts found"}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {totalPages > 1 && (
-          <Pagination>
-            <PaginationContent>
-              <PaginationItem>
-                <PaginationPrevious
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page > 1) setPage(page - 1);
-                  }}
-                  className={page <= 1 ? "pointer-events-none opacity-50" : ""}
-                />
-              </PaginationItem>
-
-              {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                (pageNum) => {
-                  // Show first page, last page, and pages around current page
-                  if (
-                    pageNum === 1 ||
-                    pageNum === totalPages ||
-                    (pageNum >= page - 1 && pageNum <= page + 1)
-                  ) {
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationLink
-                          href="#"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            setPage(pageNum);
-                          }}
-                          isActive={page === pageNum}
-                        >
-                          {pageNum}
-                        </PaginationLink>
-                      </PaginationItem>
-                    );
-                  } else if (pageNum === page - 2 || pageNum === page + 2) {
-                    return (
-                      <PaginationItem key={pageNum}>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    );
-                  }
-                  return null;
-                }
-              )}
-
-              <PaginationItem>
-                <PaginationNext
-                  href="#"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    if (page < totalPages) setPage(page + 1);
-                  }}
-                  className={
-                    page >= totalPages ? "pointer-events-none opacity-50" : ""
-                  }
-                />
-              </PaginationItem>
-            </PaginationContent>
-          </Pagination>
-        )}
+        <DataTable
+          columns={columns}
+          data={chunks}
+          pageCount={totalPages}
+          currentPage={page}
+          onPageChange={setPage}
+        />
       </div>
     </div>
   );
