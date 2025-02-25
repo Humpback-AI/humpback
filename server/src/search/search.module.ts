@@ -7,6 +7,8 @@ import { OpenAIProvider } from '@/providers/openai.provider';
 import { ApiKeyGuard } from '@/guards/api-key.guard';
 import { SupabaseProvider } from '@/providers/supabase.provider';
 import { TavilyProvider } from '@/providers/tavily.provider';
+import { CohereProvider } from '@/providers/cohere.provider';
+import { MeilisearchProvider } from '@/providers/meilisearch.provider';
 
 @Module({
   controllers: [SearchController],
@@ -17,6 +19,8 @@ import { TavilyProvider } from '@/providers/tavily.provider';
     ApiKeyGuard,
     SupabaseProvider,
     TavilyProvider,
+    CohereProvider,
+    MeilisearchProvider,
   ],
 })
 export class SearchModule {}

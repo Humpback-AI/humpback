@@ -108,5 +108,6 @@ Check out a few resources that may come in handy when working with NestJS:
 
 ## TODO
 
+- Use cohere's rerank model here
 - MCP package
 - Hybrid search using sparse vectors
