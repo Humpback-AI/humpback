@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
@@ -14,13 +14,45 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
-interface UserAccountButtonProps {
+interface Props {
   user: User;
 }
 
-export function UserAccountButton({ user }: UserAccountButtonProps) {
+interface UserData {
+  fullName: string | null;
+  email: string | null;
+  avatarUrl: string | null;
+}
+
+export function UserAccountButton({ user }: Props) {
   const [isOpen, setIsOpen] = useState(false);
+  const [userData, setUserData] = useState<UserData>({
+    fullName: null,
+    email: null,
+    avatarUrl: null,
+  });
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const supabase = createClient();
+      const { data, error } = await supabase
+        .from("users")
+        .select("full_name, email, avatar_image_url")
+        .eq("id", user.id)
+        .single();
+
+      if (!error && data) {
+        setUserData({
+          fullName: data.full_name,
+          email: data.email,
+          avatarUrl: data.avatar_image_url,
+        });
+      }
+    };
+
+    fetchUserData();
+  }, [user.id]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -28,8 +60,8 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
     router.push("/auth/signin");
   };
 
-  const initials = user.user_metadata?.full_name
-    ? user.user_metadata.full_name
+  const initials = userData.fullName
+    ? userData.fullName
         .split(" ")
         .map((name: string) => name[0])
         .join("")
@@ -43,8 +75,8 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
           <Avatar className="h-8 w-8">
             {user.user_metadata?.avatar_url ? (
               <AvatarImage
-                src={user.user_metadata.avatar_url}
-                alt={user.user_metadata.full_name || "User"}
+                src={userData.avatarUrl || ""}
+                alt={userData.fullName || userData.email || "--"}
               />
             ) : (
               <AvatarFallback>{initials}</AvatarFallback>
@@ -56,7 +88,7 @@ export function UserAccountButton({ user }: UserAccountButtonProps) {
         <div className="space-y-3">
           <div className="flex flex-col space-y-1 p-2">
             <p className="text-sm font-medium">
-              {user.user_metadata?.full_name || "User"}
+              {userData.fullName || userData.email || "--"}
             </p>
             <p className="text-xs text-gray-500">{user.email}</p>
           </div>
