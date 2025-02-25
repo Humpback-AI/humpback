@@ -4,7 +4,7 @@ import { Trash2 } from "lucide-react";
 import { TableCell } from "@/components/ui/table";
 import { TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
-import { Tables } from "@/lib/supabase/types";
+import type { Tables } from "~/supabase/types";
 
 import { ApiKeyCell } from "./Row/ApiKeyCell";
 import { DeleteDialog } from "./Row/DeleteDialog";

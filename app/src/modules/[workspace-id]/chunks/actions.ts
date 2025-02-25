@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/client";
-import type { TablesInsert } from "@/lib/supabase/types";
+import type { TablesInsert } from "~/supabase/types";
 
 export async function fetchChunks(
   workspaceId: string,

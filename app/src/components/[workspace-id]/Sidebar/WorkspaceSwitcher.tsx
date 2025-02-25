@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ChevronDown, Plus } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -30,6 +31,18 @@ export function WorkspaceSwitcher({
   const [currentWorkspace, setCurrentWorkspace] = useState<Workspace | null>(
     null
   );
+  const pathname = usePathname();
+
+  // Function to get path after workspace ID
+  const getPathAfterWorkspaceId = () => {
+    if (!pathname) return "";
+    const parts = pathname.split("/");
+    // Remove first empty string and workspace ID
+    if (parts.length > 2) {
+      return "/" + parts.slice(2).join("/");
+    }
+    return "";
+  };
 
   useEffect(() => {
     const fetchWorkspaces = async () => {
@@ -101,7 +114,7 @@ export function WorkspaceSwitcher({
               className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm h-12 w-full justify-start"
               variant="ghost"
             >
-              <Link href={`/${workspace.id}`}>
+              <Link href={`/${workspace.id}${getPathAfterWorkspaceId()}`}>
                 <div
                   className={`w-8 h-8 ${getColorFromName(
                     workspace.name
