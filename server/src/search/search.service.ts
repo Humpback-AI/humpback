@@ -18,6 +18,16 @@ import { MEILISEARCH_CLIENT } from '@/providers/meilisearch.provider';
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
 
+interface SearchResult {
+  source_url: string;
+  title: string;
+  created_at: string;
+  updated_at: string | null;
+  content: string;
+  score: number;
+  id: string;
+}
+
 @Injectable()
 export class SearchService {
   private readonly logger = new Logger(SearchService.name);
@@ -35,6 +45,67 @@ export class SearchService {
     private readonly meilisearchClient: MeilisearchClient,
     private readonly configService: ConfigService,
   ) {}
+
+  private async rerankResults(
+    results: SearchResult[],
+    query: string,
+  ): Promise<SearchResult[]> {
+    if (results.length === 0) return results;
+
+    try {
+      const rerankedResults = await this.cohereClient.rerank({
+        documents: results.map((result) => result.content),
+        query: query,
+        model: 'rerank-v3.5',
+        returnDocuments: true,
+      });
+
+      // Map the reranked results back to our format
+      const updatedResults = rerankedResults.results.map((result, index) => ({
+        ...results[index],
+        score: result.relevanceScore,
+      }));
+
+      // Sort by relevance score in descending order
+      return updatedResults.sort((a, b) => b.score - a.score);
+    } catch (error) {
+      this.logger.error('Failed to rerank results with Cohere:', error);
+      return results;
+    }
+  }
+
+  private async backfillResults(
+    currentResults: SearchResult[],
+    query: string,
+    maxResults: number,
+  ): Promise<SearchResult[]> {
+    if (!this.tavilyClient || currentResults.length >= maxResults) {
+      return currentResults;
+    }
+
+    try {
+      const tavilyResponse = await this.tavilyClient.search(query, {
+        search_depth: 'basic',
+        include_answer: false,
+        max_results: maxResults - currentResults.length,
+      });
+
+      const tavilyResults = tavilyResponse.results.map((result) => ({
+        title: result.title,
+        source_url: result.url,
+        content: result.content,
+        score: result.score,
+        created_at: new Date().toISOString(),
+        updated_at: null,
+        id: randomUUID(),
+      }));
+
+      return [...currentResults, ...tavilyResults];
+    } catch (error) {
+      this.logger.error('Failed to fetch Tavily results:', error);
+      return currentResults;
+    }
+  }
 
   async create(createSearchDto: CreateSearchDto): Promise<SearchResponseDto> {
     const startTime = Date.now();
@@ -59,7 +130,7 @@ export class SearchService {
     ]);
 
     // Process Qdrant results
-    const qdrantSearchResults = qdrantResults.map((result) => {
+    const qdrantSearchResults: SearchResult[] = qdrantResults.map((result) => {
       const payload = ChunkPayloadSchema.parse(result.payload);
       return {
         source_url: payload.source_url,
@@ -68,20 +139,21 @@ export class SearchService {
         updated_at: payload.updated_at,
         content: payload.content,
         score: result.score,
-        id: result.id,
+        id: String(result.id),
       };
     });
 
     // Process Meilisearch results
-    const meilisearchSearchResults = meilisearchResults.hits.map((hit) => ({
-      source_url: hit.source_url,
-      title: hit.title,
-      created_at: hit.created_at,
-      updated_at: hit.updated_at,
-      content: hit.content,
-      score: 0,
-      id: String(hit.id),
-    }));
+    const meilisearchSearchResults: SearchResult[] =
+      meilisearchResults.hits.map((hit) => ({
+        source_url: hit.source_url,
+        title: hit.title,
+        created_at: hit.created_at,
+        updated_at: hit.updated_at,
+        content: hit.content,
+        score: 0,
+        id: String(hit.id),
+      }));
 
     // Combine results from both sources
     let combinedResults = R.uniqueBy(
@@ -89,64 +161,20 @@ export class SearchService {
       (result) => result.id,
     );
 
-    // Use Cohere to rerank the combined results
-    if (combinedResults.length > 0) {
-      try {
-        const rerankedResults = await this.cohereClient.rerank({
-          documents: combinedResults.map((result) => result.content),
-          query: createSearchDto.query,
-          model: 'rerank-v3.5',
-          returnDocuments: true,
-        });
+    // Rerank the combined results using Cohere
+    combinedResults = await this.rerankResults(
+      combinedResults,
+      createSearchDto.query,
+    );
+    combinedResults = combinedResults.slice(0, createSearchDto.max_results);
 
-        // Map the reranked results back to our format
-        combinedResults = rerankedResults.results.map((result, index) => ({
-          ...combinedResults[index],
-          score: result.relevanceScore,
-        }));
-
-        // Sort by relevance score in descending order
-        combinedResults.sort((a, b) => b.score - a.score);
-
-        // Limit to max_results
-        combinedResults = combinedResults.slice(0, createSearchDto.max_results);
-      } catch (error) {
-        this.logger.error('Failed to rerank results with Cohere:', error);
-        // Continue with existing results if reranking fails
-      }
-    }
-
-    // If backfilling is enabled and we have a Tavily client
-    if (
-      createSearchDto.should_backfill &&
-      this.tavilyClient &&
-      combinedResults.length < createSearchDto.max_results
-    ) {
-      try {
-        const tavilyResponse = await this.tavilyClient.search(
-          createSearchDto.query,
-          {
-            search_depth: 'basic',
-            include_answer: false,
-            max_results: createSearchDto.max_results - combinedResults.length,
-          },
-        );
-
-        const tavilyResults = tavilyResponse.results.map((result) => ({
-          title: result.title,
-          source_url: result.url,
-          content: result.content,
-          score: result.score,
-          created_at: new Date().toISOString(),
-          updated_at: null,
-          id: randomUUID(),
-        }));
-
-        combinedResults = [...combinedResults, ...tavilyResults];
-      } catch (error) {
-        this.logger.error('Failed to fetch Tavily results:', error);
-        // Continue with existing results if Tavily fails
-      }
+    // Backfill results if needed using Tavily
+    if (createSearchDto.should_backfill) {
+      combinedResults = await this.backfillResults(
+        combinedResults,
+        createSearchDto.query,
+        createSearchDto.max_results,
+      );
     }
 
     return {
