@@ -114,10 +114,9 @@ export class ContentSyncProcessor {
         this.meilisearchClient.chunks.addDocuments(
           payloads.map((payload) => ({
             ...payload,
-            created_at_timestamp:
-              new Date(payload.created_at).getTime() / 1_000,
+            created_at_timestamp: new Date(payload.created_at).getTime(),
             updated_at_timestamp: payload.updated_at
-              ? new Date(payload.updated_at).getTime() / 1_000
+              ? new Date(payload.updated_at).getTime()
               : null,
           })),
           { primaryKey: 'id' },
