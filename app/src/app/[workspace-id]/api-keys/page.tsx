@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
 import { useParams } from "next/navigation";
 import { PostgrestError } from "@supabase/supabase-js";
 import { toast } from "sonner";
+import { useQuery, useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,89 +15,43 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import type { Tables } from "@/lib/supabase/types";
 import {
   createApiKey,
-  deleteApiKey,
   fetchApiKeys,
 } from "@/modules/[workspace-id]/api-keys/actions";
-import { ApiKeyCell } from "@/components/[workspace-id]/[api-key]/ApiKeyCell";
-
-type ApiKey = Tables<"api_keys">;
+import Row from "@/components/[workspace-id]/[api-key]/Row";
 
 export default function ApiKeysPage() {
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
-  const [apiKeys, setApiKeys] = useState<ApiKey[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
-  const fetchKeys = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const data = await fetchApiKeys(workspaceId);
-      setApiKeys(data);
-    } catch (error) {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to fetch API keys";
-      toast.error("Error", { description: message });
-    } finally {
-      setIsLoading(false);
-    }
-  }, [workspaceId]);
+  const {
+    data: apiKeys = [],
+    isLoading,
+    refetch,
+  } = useQuery({
+    queryKey: [fetchApiKeys.key, workspaceId],
+    queryFn: () => fetchApiKeys(workspaceId),
+  });
 
-  async function handleCreateKey() {
-    try {
-      setIsLoading(true);
-      const key = await createApiKey(workspaceId);
-
+  const { mutate: handleCreateKey, isPending: isCreating } = useMutation({
+    mutationFn: () => createApiKey(workspaceId),
+    onSuccess: (key) => {
       toast.success("API Key Created", {
         description: (
           <div className="mt-2 font-mono text-xs break-all">{key}</div>
         ),
-        duration: 10000,
       });
-
-      // Refresh the list
-      fetchKeys();
-    } catch (error) {
+      refetch();
+    },
+    onError: (error) => {
       const message =
         error instanceof PostgrestError
           ? error.message
           : "Failed to create API key";
       toast.error("Error", { description: message });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  async function handleDeleteKey(id: string) {
-    try {
-      setIsLoading(true);
-      await deleteApiKey(id);
-
-      toast.success("API Key Deleted", {
-        description: "The API key has been deleted successfully",
-      });
-
-      // Refresh the list
-      fetchKeys();
-    } catch (error) {
-      const message =
-        error instanceof PostgrestError
-          ? error.message
-          : "Failed to delete API key";
-      toast.error("Error", { description: message });
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  // Fetch API keys on component mount
-  useEffect(() => {
-    fetchKeys();
-  }, [fetchKeys]);
+    },
+  });
 
   return (
     <div className="container mx-auto py-10">
@@ -111,7 +65,10 @@ export default function ApiKeysPage() {
         </div>
 
         <div className="flex justify-end">
-          <Button onClick={handleCreateKey} disabled={isLoading}>
+          <Button
+            onClick={() => handleCreateKey()}
+            disabled={isCreating || isLoading}
+          >
             <Plus className="mr-2 h-4 w-4" />
             Create New Key
           </Button>
@@ -128,24 +85,7 @@ export default function ApiKeysPage() {
             </TableHeader>
             <TableBody>
               {apiKeys.map((key) => (
-                <TableRow key={key.id}>
-                  <TableCell>
-                    <ApiKeyCell value={key.key} />
-                  </TableCell>
-                  <TableCell>
-                    {new Date(key.created_at).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeleteKey(key.id)}
-                      disabled={isLoading}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
+                <Row key={key.id} apiKey={key} />
               ))}
               {apiKeys.length === 0 && (
                 <TableRow>
