@@ -41,15 +41,25 @@ fetchChunks.key = "/modules/[workspace-id]/chunks/actions/fetchChunks";
  * Syncs chunk operations with the Humpback server
  */
 export async function syncChunks(chunkIds: string[]) {
-  const response = await fetch("/api/chunks/sync", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      chunk_ids: chunkIds,
-    }),
-  });
+  const supabase = createClient();
+  const {
+    data: { session },
+  } = await supabase.auth.getSession();
+  const accessToken = session?.access_token;
+
+  const response = await fetch(
+    `${process.env.NEXT_PUBLIC_HUMPBACK_SERVER_BASE_URL}/webhooks/content-sync`,
+    {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        chunk_ids: chunkIds,
+      }),
+    }
+  );
 
   if (!response.ok) {
     const errorData = await response.json();

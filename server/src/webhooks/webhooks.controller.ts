@@ -2,12 +2,12 @@ import { Controller, Post, Body, UseGuards } from '@nestjs/common';
 import { ZodValidationPipe } from 'nestjs-zod';
 
 import { ContentSyncService } from '@/queues/content-sync/content-sync.service';
-import { InternalSecretGuard } from '@/guards/internal-secret.guard';
+import { SupabaseAuthGuard } from '@/guards/supabase-auth.guard';
 
 import { ContentSyncDto } from './dto/content-sync.dto';
 
 @Controller('webhooks')
-@UseGuards(InternalSecretGuard)
+@UseGuards(SupabaseAuthGuard)
 export class WebhooksController {
   constructor(private readonly contentSyncService: ContentSyncService) {}
 
