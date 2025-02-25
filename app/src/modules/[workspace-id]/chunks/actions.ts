@@ -37,6 +37,28 @@ export async function fetchChunks(
 
 fetchChunks.key = "/modules/[workspace-id]/chunks/actions/fetchChunks";
 
+/**
+ * Syncs chunk operations with the Humpback server
+ */
+export async function syncChunks(chunkIds: string[]) {
+  const response = await fetch("/api/chunks/sync", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      chunk_ids: chunkIds,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(`Sync failed: ${errorData.message || response.statusText}`);
+  }
+
+  return await response.json();
+}
+
 export async function createChunk({
   workspaceId,
   userId,
@@ -47,13 +69,15 @@ export async function createChunk({
   chunk: Omit<TablesInsert<"chunks">, "workspace_id">;
 }) {
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("chunks")
     .insert([{ ...chunk, workspace_id: workspaceId, user_id: userId }])
     .select()
-    .single();
+    .single()
+    .throwOnError();
 
-  if (error) throw error;
+  await syncChunks([data.id]);
+
   return data;
 }
 
@@ -62,20 +86,22 @@ export async function updateChunk(
   chunk: Partial<TablesInsert<"chunks">>
 ) {
   const supabase = createClient();
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("chunks")
     .update({ ...chunk, updated_at: new Date().toISOString() })
     .eq("id", chunkId)
     .select()
-    .single();
+    .single()
+    .throwOnError();
 
-  if (error) throw error;
+  await syncChunks([data.id]);
+
   return data;
 }
 
 export async function deleteChunk(chunkId: string) {
   const supabase = createClient();
-  const { error } = await supabase.from("chunks").delete().eq("id", chunkId);
+  await supabase.from("chunks").delete().eq("id", chunkId).throwOnError();
 
-  if (error) throw error;
+  await syncChunks([chunkId]);
 }

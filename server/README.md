@@ -108,5 +108,7 @@ Check out a few resources that may come in handy when working with NestJS:
 
 ## TODO
 
+- Expose the meilisearch endpoint
+- Set up configuration for it
 - MCP package
 - Hybrid search using sparse vectors
