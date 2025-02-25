@@ -12,7 +12,7 @@ import {
   MEILISEARCH_CLIENT,
   MeilisearchClient,
 } from '@/providers/meilisearch.provider';
-import { Database } from '@/providers/types/supabase.types';
+import { Database } from '~/supabase/types';
 import { ChunkPayloadType } from '@/search/dto/chunk-payload.dto';
 
 import { ContentSyncJob } from './types';

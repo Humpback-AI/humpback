@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 import { WorkspaceSwitcher } from "./Sidebar/WorkspaceSwitcher";
 
+// TODO: This should be updated depending on the user's current path
 const Sidebar = () => {
   const params = useParams();
   const pathname = usePathname();

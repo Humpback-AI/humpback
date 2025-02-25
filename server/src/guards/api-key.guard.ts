@@ -8,7 +8,7 @@ import {
 import { SupabaseClient } from '@supabase/supabase-js';
 import { Request } from 'express';
 
-import { Database, Tables } from '@/providers/types/supabase.types';
+import { Database, Tables } from '~/supabase/types';
 import { SUPABASE_CLIENT } from '@/providers/supabase.provider';
 
 interface RequestWithApiKey extends Request {
