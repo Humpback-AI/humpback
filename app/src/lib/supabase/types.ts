@@ -77,6 +77,7 @@ export type Database = {
           source_url: string;
           title: string;
           updated_at: string | null;
+          user_id: string | null;
           workspace_id: string;
         };
         Insert: {
@@ -86,6 +87,7 @@ export type Database = {
           source_url: string;
           title: string;
           updated_at?: string | null;
+          user_id?: string | null;
           workspace_id: string;
         };
         Update: {
@@ -95,9 +97,17 @@ export type Database = {
           source_url?: string;
           title?: string;
           updated_at?: string | null;
+          user_id?: string | null;
           workspace_id?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "chunks_user_id_fkey";
+            columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "chunks_workspace_id_fkey";
             columns: ["workspace_id"];
