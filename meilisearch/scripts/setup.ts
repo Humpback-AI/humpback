@@ -1,5 +1,7 @@
 import { MeiliSearch } from "meilisearch";
 
+import { ChunkPayload } from "../types";
+
 async function setup() {
   try {
     // Check for required environment variables
@@ -12,7 +14,7 @@ async function setup() {
       apiKey: meilisearchApiKey,
     });
 
-    const index = client.index("chunks");
+    const index = client.index<ChunkPayload>("chunks");
 
     await index.updateSearchableAttributes(["content", "title"]);
     await index.updateFilterableAttributes(["workspace_id", "user_id"]);
