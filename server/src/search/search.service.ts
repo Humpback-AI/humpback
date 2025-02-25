@@ -5,6 +5,7 @@ import OpenAI from 'openai';
 import { tavily } from '@tavily/core';
 import { randomUUID } from 'crypto';
 import { CohereClient } from 'cohere-ai';
+import * as R from 'remeda';
 
 import { QDRANT_CLIENT } from '@/providers/qdrant.provider';
 import { OPENAI_CLIENT } from '@/providers/openai.provider';
@@ -83,7 +84,10 @@ export class SearchService {
     }));
 
     // Combine results from both sources
-    let combinedResults = [...qdrantSearchResults, ...meilisearchSearchResults];
+    let combinedResults = R.uniqueBy(
+      [...qdrantSearchResults, ...meilisearchSearchResults],
+      (result) => result.id,
+    );
 
     // Use Cohere to rerank the combined results
     if (combinedResults.length > 0) {
