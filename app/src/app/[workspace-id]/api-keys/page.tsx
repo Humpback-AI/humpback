@@ -54,8 +54,8 @@ export default function ApiKeysPage() {
             onClick={() => setShowCreateDialog(true)}
             disabled={isLoading}
           >
-            <Plus className="mr-2 h-4 w-4" />
-            Create New Key
+            <Plus />
+            Create new key
           </Button>
         </div>
 

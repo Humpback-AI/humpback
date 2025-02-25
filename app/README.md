@@ -35,9 +35,11 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-# TODO
+## TODO
 
+- Maybe do away with workspaces for now
 - Simple flow to create update, delete chunks of data
 - Set a pricing on the chunks of data
 - Analytics with tinybird
 - Make app shell responsive
+- Rating system for human feedback?
