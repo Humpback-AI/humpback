@@ -81,7 +81,7 @@ export class ContentSyncProcessor {
 
       const payloads: ChunkPayloadType[] = chunks.map((chunk) => ({
         id: chunk.id,
-        organization_id: chunk.organization_id,
+        workspace_id: chunk.workspace_id,
         source_url: chunk.source_url,
         title: chunk.title,
         content: chunk.content,
