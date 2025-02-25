@@ -58,7 +58,7 @@ export default function PostsPage() {
     : 0;
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 max-w-screen-xl">
       <CreateChunkDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}

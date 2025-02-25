@@ -33,7 +33,7 @@ export default function ApiKeysPage() {
   });
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 max-w-screen-xl">
       <CreateKeyDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
