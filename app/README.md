@@ -37,7 +37,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## TODO
 
-- Maybe do away with workspaces for now
 - Simple flow to create update, delete chunks of data
 - Set a pricing on the chunks of data
 - Analytics with tinybird

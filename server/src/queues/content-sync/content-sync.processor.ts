@@ -89,6 +89,7 @@ export class ContentSyncProcessor {
         updated_at: chunk.updated_at
           ? new Date(chunk.updated_at).toISOString()
           : null,
+        user_id: chunk.user_id,
       }));
 
       await this.qdrantClient.upsert('chunks', {
