@@ -1,12 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useEffect, useState } from "react";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -76,9 +77,7 @@ export function CreateChunkDialog({
     },
   });
 
-  const { isSubmitting } = form.formState;
-
-  const { mutate: createPost } = useMutation({
+  const { mutate: createPost, isPending } = useMutation({
     mutationFn: (values: FormValues) =>
       createChunk({ workspaceId, userId: userId!, chunk: values }),
     onSuccess: () => {
@@ -115,7 +114,7 @@ export function CreateChunkDialog({
             <Input
               id="title"
               placeholder="Enter post title"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("title")}
             />
             {form.formState.errors.title && (
@@ -131,7 +130,7 @@ export function CreateChunkDialog({
               id="content"
               placeholder="Write your post content here..."
               className="h-32"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("content")}
             />
             {form.formState.errors.content && (
@@ -146,7 +145,7 @@ export function CreateChunkDialog({
             <Input
               id="source_url"
               placeholder="https://example.com"
-              disabled={isSubmitting}
+              disabled={isPending}
               {...form.register("source_url")}
             />
             {form.formState.errors.source_url && (
@@ -161,11 +160,12 @@ export function CreateChunkDialog({
               type="button"
               variant="ghost"
               onClick={onClose}
-              disabled={isSubmitting}
+              disabled={isPending}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={isSubmitting || !userId}>
+            <Button type="submit" disabled={isPending || !userId}>
+              {isPending && <Loader2 className="animate-spin" />}
               Create Post
             </Button>
           </DialogFooter>
