@@ -10,7 +10,6 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
@@ -44,7 +43,9 @@ export function DataTable<TData, TValue>({
   currentPage,
   onPageChange,
 }: DataTableProps<TData, TValue>) {
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
 
   const table = useReactTable({
     data,
@@ -60,16 +61,6 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <Input
-          placeholder="Filter posts..."
-          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("title")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-      </div>
       <div className="rounded-md border">
         <div className="overflow-x-auto">
           <Table>

@@ -5,6 +5,8 @@ export type ChunkPayload = {
   title: string;
   created_at: string;
   updated_at: string | null;
+  created_at_timestamp: number;
+  updated_at_timestamp: number | null;
   content: string;
   user_id: string | null;
 };

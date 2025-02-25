@@ -1,38 +1,62 @@
-import { createClient } from "@/lib/supabase/client";
+import { SearchResponse } from "meilisearch";
+
+import { PostSearchChunksSchema } from "@/app/schemas/api/chunks/search/schema";
+import { ChunkPayload } from "~/meilisearch/types";
 import type { TablesInsert } from "~/supabase/types";
+import { createClient } from "@/lib/supabase/client";
 
 export async function fetchChunks(
-  workspaceId: string,
-  page: number = 1,
-  pageSize: number = 10
-) {
-  const supabase = createClient();
+  args: PostSearchChunksSchema
+): Promise<
+  SearchResponse<ChunkPayload, { hitsPerPage: number; page: number }>
+> {
+  if (!args.query.trim()) {
+    const supabase = createClient();
+    const from = (args.page - 1) * (args.hitsPerPage || 10);
+    const to = from + (args.hitsPerPage || 10) - 1;
 
-  // Calculate the range for pagination
-  const start = (page - 1) * pageSize;
-  const end = start + pageSize - 1;
-
-  const [{ count }, { data }] = await Promise.all([
-    // Get total count
-    supabase
+    const { data: chunks, count } = await supabase
       .from("chunks")
-      .select("*", { count: "exact", head: true })
-      .eq("workspace_id", workspaceId),
-    // Get paginated data
-    supabase
-      .from("chunks")
-      .select("*")
-      .eq("workspace_id", workspaceId)
+      .select("*", { count: "exact" })
+      .eq("workspace_id", args.workspaceId)
       .order("created_at", { ascending: false })
-      .range(start, end),
-  ]);
+      .range(from, to);
 
-  if (!data) throw new Error("Failed to fetch chunks");
+    const transformedChunks = (chunks || []).map((chunk) => ({
+      ...chunk,
+      created_at_timestamp: new Date(chunk.created_at).getTime(),
+      updated_at_timestamp: chunk.updated_at
+        ? new Date(chunk.updated_at).getTime()
+        : null,
+    }));
 
-  return {
-    data,
-    total: count || 0,
-  };
+    const hitsPerPage = args.hitsPerPage || 10;
+    const totalHits = count || 0;
+    const totalPages = Math.ceil(totalHits / hitsPerPage);
+
+    return {
+      hits: transformedChunks,
+      page: args.page,
+      hitsPerPage,
+      totalHits,
+      totalPages,
+      processingTimeMs: 0,
+      query: args.query,
+    };
+  }
+
+  const response = await fetch("/api/chunks/search", {
+    method: "POST",
+    body: JSON.stringify(args),
+  });
+
+  const results = await response.json();
+
+  if (!response.ok) {
+    throw new Error("Failed to fetch posts");
+  }
+
+  return results;
 }
 
 fetchChunks.key = "/modules/[workspace-id]/chunks/actions/fetchChunks";
@@ -48,7 +72,7 @@ export async function syncChunks(chunkIds: string[]) {
   const accessToken = session?.access_token;
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_HUMPBACK_SERVER_BASE_URL}/webhooks/content-sync`,
+    `${process.env.NEXT_PUBLIC_HUMPBACK_SERVER_BASE_URL}/v1/webhooks/content-sync`,
     {
       method: "POST",
       headers: {
