@@ -1,16 +1,38 @@
 import { createClient } from "@/lib/supabase/client";
 import type { TablesInsert } from "@/lib/supabase/types";
 
-export async function fetchChunks(workspaceId: string) {
+export async function fetchChunks(
+  workspaceId: string,
+  page: number = 1,
+  pageSize: number = 10
+) {
   const supabase = createClient();
-  const { data, error } = await supabase
-    .from("chunks")
-    .select("*")
-    .eq("workspace_id", workspaceId)
-    .order("created_at", { ascending: false });
 
-  if (error) throw error;
-  return data;
+  // Calculate the range for pagination
+  const start = (page - 1) * pageSize;
+  const end = start + pageSize - 1;
+
+  const [{ count }, { data }] = await Promise.all([
+    // Get total count
+    supabase
+      .from("chunks")
+      .select("*", { count: "exact", head: true })
+      .eq("workspace_id", workspaceId),
+    // Get paginated data
+    supabase
+      .from("chunks")
+      .select("*")
+      .eq("workspace_id", workspaceId)
+      .order("created_at", { ascending: false })
+      .range(start, end),
+  ]);
+
+  if (!data) throw new Error("Failed to fetch chunks");
+
+  return {
+    data,
+    total: count || 0,
+  };
 }
 
 fetchChunks.key = "/modules/[workspace-id]/chunks/actions/fetchChunks";
