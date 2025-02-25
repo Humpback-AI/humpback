@@ -17,6 +17,11 @@ const SearchRequestSchema = z.object({
     .optional()
     .default(false)
     .describe('Whether to backfill results with Tavily search'),
+  skip_transform: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Whether to skip query transformation'),
 });
 
 // Create the DTO class
