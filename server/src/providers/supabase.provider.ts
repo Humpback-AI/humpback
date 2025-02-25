@@ -2,7 +2,7 @@ import { Provider } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { createClient } from '@supabase/supabase-js';
 
-import { Database } from './types/supabase.types';
+import { Database } from '~/supabase/types';
 
 export const SUPABASE_CLIENT = 'SUPABASE_CLIENT';
 

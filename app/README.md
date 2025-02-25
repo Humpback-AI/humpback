@@ -37,7 +37,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## TODO
 
-- Set a pricing on the chunks of data
 - Analytics with tinybird
+- Set a pricing on the chunks of data
 - Make app shell responsive
 - Rating system for human feedback?

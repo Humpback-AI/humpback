@@ -4,7 +4,7 @@ import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { ApiKeyGuard } from '@/guards/api-key.guard';
 import { ApiKey } from '@/decorators/api-key.decorator';
-import { Tables } from '@/providers/types/supabase.types';
+import { Tables } from '~/supabase/types';
 
 import { SearchService } from './search.service';
 import { CreateSearchDto } from './dto/create-search.dto';

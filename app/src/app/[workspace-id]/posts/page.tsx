@@ -27,7 +27,7 @@ import { fetchChunks } from "@/modules/[workspace-id]/chunks/actions";
 import { CreateChunkDialog } from "@/components/[workspace-id]/[chunk]/CreateChunkDialog";
 import { EditChunkDialog } from "@/components/[workspace-id]/[chunk]/EditChunkDialog";
 import { DeleteChunkDialog } from "@/components/[workspace-id]/[chunk]/DeleteChunkDialog";
-import type { Tables } from "@/lib/supabase/types";
+import type { Tables } from "~/supabase/types";
 
 const ITEMS_PER_PAGE = 10;
 

@@ -1,7 +1,7 @@
 import { createParamDecorator, ExecutionContext } from '@nestjs/common';
 import { Request } from 'express';
 
-import { Tables } from '@/providers/types/supabase.types';
+import { Tables } from '~/supabase/types';
 
 interface RequestWithApiKey extends Request {
   apiKey: Tables<'api_keys'>;

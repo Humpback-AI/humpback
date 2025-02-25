@@ -3,14 +3,14 @@ import { ConfigService } from '@nestjs/config';
 import { MeiliSearch, Index } from 'meilisearch';
 import { Logger } from '@nestjs/common';
 
-import { ChunksIndex } from './types/meilisearch.types';
+import { ChunkPayload } from '~/meilisearch/types';
 
 export const MEILISEARCH_CLIENT = 'MEILISEARCH_CLIENT';
 
 export type MeilisearchClient = {
   client: MeiliSearch;
   chunks: Index<
-    Omit<ChunksIndex, 'created_at' | 'updated_at'> & {
+    Omit<ChunkPayload, 'created_at' | 'updated_at'> & {
       created_at_timestamp: number;
       updated_at_timestamp: number | null;
     }
@@ -42,7 +42,7 @@ export const MeilisearchProvider: Provider = {
     return {
       client,
       chunks: client.index<
-        Omit<ChunksIndex, 'created_at' | 'updated_at'> & {
+        Omit<ChunkPayload, 'created_at' | 'updated_at'> & {
           created_at_timestamp: number;
           updated_at_timestamp: number | null;
         }
