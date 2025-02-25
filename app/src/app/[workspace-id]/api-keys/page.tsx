@@ -21,6 +21,7 @@ import {
   deleteApiKey,
   fetchApiKeys,
 } from "@/modules/[workspace-id]/api-keys/actions";
+import { ApiKeyCell } from "@/components/[workspace-id]/[api-key]/ApiKeyCell";
 
 type ApiKey = Tables<"api_keys">;
 
@@ -120,7 +121,7 @@ export default function ApiKeysPage() {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Key ID</TableHead>
+                <TableHead className="w-[60%]">API Key</TableHead>
                 <TableHead>Created At</TableHead>
                 <TableHead className="w-[100px]">Actions</TableHead>
               </TableRow>
@@ -128,7 +129,9 @@ export default function ApiKeysPage() {
             <TableBody>
               {apiKeys.map((key) => (
                 <TableRow key={key.id}>
-                  <TableCell className="font-mono">{key.id}</TableCell>
+                  <TableCell>
+                    <ApiKeyCell value={key.key} />
+                  </TableCell>
                   <TableCell>
                     {new Date(key.created_at).toLocaleDateString()}
                   </TableCell>
