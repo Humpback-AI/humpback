@@ -37,22 +37,22 @@ export type Database = {
       api_keys: {
         Row: {
           created_at: string;
-          hashed_key: string;
           id: string;
+          key: string;
           updated_at: string | null;
           workspace_id: string;
         };
         Insert: {
           created_at?: string;
-          hashed_key: string;
           id?: string;
+          key: string;
           updated_at?: string | null;
           workspace_id: string;
         };
         Update: {
           created_at?: string;
-          hashed_key?: string;
           id?: string;
+          key?: string;
           updated_at?: string | null;
           workspace_id?: string;
         };
