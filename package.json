@@ -1,0 +1,14 @@
+{
+  "name": "humpback",
+  "version": "0.0.1",
+  "description": "> The first search engine for LLMs built on trust and sustainable information economics. We're creating a marketplace that fairly values quality information while enabling the next generation of source-grounded AI.",
+  "scripts": {
+    "setup": "ts-node meilisearch/scripts/setup.ts"
+  },
+  "dependencies": {
+    "meilisearch": "^0.49.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.5"
+  }
+}
