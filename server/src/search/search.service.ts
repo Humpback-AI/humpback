@@ -27,6 +27,7 @@ interface SearchResult {
   content: string;
   score: number;
   id: string;
+  workspace_id: string;
 }
 
 const SCORE_THRESHOLD = 0.2;
@@ -143,6 +144,7 @@ export class SearchService {
         created_at: new Date().toISOString(),
         updated_at: null,
         id: randomUUID(),
+        workspace_id: 'tavily',
       }));
 
       return [...currentResults, ...tavilyResults];
@@ -194,6 +196,7 @@ export class SearchService {
         content: payload.content,
         score: result.score,
         id: String(result.id),
+        workspace_id: payload.workspace_id,
       };
     });
 
@@ -207,6 +210,7 @@ export class SearchService {
         content: hit.content,
         score: 0,
         id: String(hit.id),
+        workspace_id: hit.workspace_id,
       }));
 
     // Combine results from both sources
