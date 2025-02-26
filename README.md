@@ -89,6 +89,12 @@ If you find Humpback useful, please consider giving us a star on GitHub!
 
 ## TODO
 
+- Crazy thought -> what if we move contributions to github instead? Where we have a posts repo and a review process
+  - Then we let users post to it and we manually approve the PR.
+  - This will get indexed into our search engine and we keep a leaderboard + allow search on number of references each person gets
+  - Concern: this will get scraped as well as we get bigger
+  - But all we need is a dashboard for provisioning API keys and viewing the leaderboard (home page)
+  - In search results, we will display the github usernames as author ids + urls to them (this will be a list of folks who have contributed to the file)
 - Maybe rename posts to chunks once again. We want folks to get rewarded for contributing chunks
 - Set a max size on the chunks -> using a library to estimate chunk size
 - Make it such that you have to be invited in order to contribute chunks

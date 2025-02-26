@@ -111,6 +111,7 @@ export async function updateChunk(
       title: chunk.title,
       content: chunk.content,
       source_url: chunk.source_url,
+      updated_at: new Date().toISOString(),
     })
     .eq("id", chunkId)
     .eq("user_id", session.user.id)
