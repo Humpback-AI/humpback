@@ -21,7 +21,7 @@ export default function AuthCallbackPage() {
   }, [router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="w-full flex justify-center items-center h-[calc(100vh-80px)]">
       <div className="text-center">
         <h2 className="text-2xl font-semibold mb-4">Completing sign in...</h2>
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>

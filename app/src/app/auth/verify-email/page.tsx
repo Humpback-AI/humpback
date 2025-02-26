@@ -53,7 +53,7 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="w-full flex justify-center items-center h-[calc(100vh-80px)]">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl font-bold">Check your email</CardTitle>
