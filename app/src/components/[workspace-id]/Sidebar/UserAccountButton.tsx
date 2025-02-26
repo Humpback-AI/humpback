@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/popover";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 interface Props {
   user: User;
@@ -71,8 +72,11 @@ export function UserAccountButton({ user }: Props) {
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="ghost" className="h-6 w-6 rounded-full p-0">
-          <Avatar className="h-6 w-6">
+        <Button
+          variant="ghost"
+          className="w-full h-auto p-2 justify-start gap-3 font-normal"
+        >
+          <Avatar className="h-8 w-8">
             {userData.avatarUrl ? (
               <AvatarImage
                 src={userData.avatarUrl}
@@ -82,26 +86,53 @@ export function UserAccountButton({ user }: Props) {
               <AvatarFallback>{initials}</AvatarFallback>
             )}
           </Avatar>
+          <div className="flex flex-col items-start text-left">
+            <span className="text-sm font-medium">
+              {userData.fullName || "User"}
+            </span>
+            <span className="text-xs text-muted-foreground truncate max-w-[150px]">
+              {userData.email || user.email}
+            </span>
+          </div>
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="start">
-        <div className="space-y-3">
-          <div className="flex flex-col space-y-1 p-2">
-            <p className="text-sm font-medium">
-              {userData.fullName || userData.email || "--"}
+      <PopoverContent
+        className="w-64 p-0"
+        side="right"
+        align="end"
+        sideOffset={8}
+      >
+        <div className="p-3 flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            {userData.avatarUrl ? (
+              <AvatarImage
+                src={userData.avatarUrl}
+                alt={userData.fullName || userData.email || "--"}
+              />
+            ) : (
+              <AvatarFallback>{initials}</AvatarFallback>
+            )}
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium leading-none">
+              {userData.fullName || "User"}
             </p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+            <p className="text-xs text-muted-foreground truncate max-w-[160px]">
+              {userData.email || user.email}
+            </p>
           </div>
-          <div className="space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 h-8"
-              onClick={handleLogout}
-            >
-              <LogOut />
-              Logout
-            </Button>
-          </div>
+        </div>
+        <Separator />
+        <div className="p-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full justify-start gap-2 text-red-600 hover:text-red-600 hover:bg-red-100/50"
+            onClick={handleLogout}
+          >
+            <LogOut className="h-4 w-4" />
+            Log out
+          </Button>
         </div>
       </PopoverContent>
     </Popover>

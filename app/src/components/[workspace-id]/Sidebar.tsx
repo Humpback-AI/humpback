@@ -13,6 +13,7 @@ import {
   SidebarMenu,
   SidebarMenuItem,
   SidebarMenuButton,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { UserAccountButton } from "@/components/[workspace-id]/Sidebar/UserAccountButton";
 import { createClient } from "@/lib/supabase/client";
@@ -46,9 +47,8 @@ const Sidebar = () => {
   return (
     <SidebarRoot>
       <SidebarHeader className="flex flex-col gap-4">
-        <div className="flex items-center justify-between px-2">
+        <div className="flex items-center px-2">
           <span className="font-semibold text-xl">Humpback</span>
-          {user && <UserAccountButton user={user} />}
         </div>
         <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
       </SidebarHeader>
@@ -95,6 +95,12 @@ const Sidebar = () => {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarContent>
+
+      {user && (
+        <SidebarFooter>
+          <UserAccountButton user={user} />
+        </SidebarFooter>
+      )}
     </SidebarRoot>
   );
 };
