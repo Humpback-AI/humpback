@@ -37,8 +37,14 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 ## TODO
 
+- Maybe do away with the concept of workspaces for now and focus on individual contribs
+  - Since we're targeting smaller publishers and writers first
+- Maybe rename posts to chunks once again. We want folks to get rewarded for contributing chunks
+- Set a max size on the chunks -> using a library to estimate chunk size
+- Make it such that you have to be invited in order to contribute chunks
 - Analytics with tinybird
 - Set a pricing on the chunks of data
 - Create a playground to see API results
 - Make app shell responsive
 - Rating system for human feedback?
+- Account preferences
