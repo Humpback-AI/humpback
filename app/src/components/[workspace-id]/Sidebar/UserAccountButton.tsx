@@ -125,7 +125,7 @@ export function UserAccountButton({ user }: Props) {
         </div>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          className="w-full justify-start gap-2"
+          className="w-full justify-start gap-2 cursor-pointer"
           onClick={handleLogout}
         >
           <LogOut />

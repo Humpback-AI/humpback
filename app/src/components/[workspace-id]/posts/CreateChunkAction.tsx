@@ -7,7 +7,8 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
+import { useHotkeys } from "react-hotkeys-hook";
 
 import {
   Dialog,
@@ -46,6 +47,12 @@ export function CreateChunkAction({ onRefetch }: Props) {
   const workspaceId = params["workspace-id"] as string;
   const [userId, setUserId] = useState<string | null>(null);
   const [isOpen, setIsOpen] = useState(false);
+
+  useHotkeys("c", () => setIsOpen(true), {
+    enabled: !isOpen,
+    enableOnFormTags: false,
+    preventDefault: true,
+  });
 
   useEffect(() => {
     const supabase = createClient();
@@ -98,9 +105,11 @@ export function CreateChunkAction({ onRefetch }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <Plus />
+        <Button className="group flex items-center gap-2">
           Create new post
+          <kbd className="hidden rounded px-2 py-0.5 text-xs font-light transition-all duration-75 md:inline-block bg-neutral-700 text-neutral-400 group-hover:bg-neutral-600 group-hover:text-neutral-300">
+            C
+          </kbd>
         </Button>
       </DialogTrigger>
       <DialogContent>

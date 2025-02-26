@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2, Plus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 
 import {
   Dialog,
@@ -75,10 +75,7 @@ export function CreateKeyAction({ onRefetch }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button disabled={isPending}>
-          <Plus />
-          Create new key
-        </Button>
+        <Button disabled={isPending}>Create new key</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>

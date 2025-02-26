@@ -115,7 +115,11 @@ export function WorkspaceSwitcher({
           Workspaces
         </DropdownMenuLabel>
         {workspaces.map((workspace) => (
-          <DropdownMenuItem key={workspace.id} asChild>
+          <DropdownMenuItem
+            key={workspace.id}
+            asChild
+            className="cursor-pointer"
+          >
             <Link
               href={`/${workspace.id}${getPathAfterWorkspaceId()}`}
               className="flex items-center gap-2"
@@ -136,7 +140,7 @@ export function WorkspaceSwitcher({
 
         <DropdownMenuSeparator />
 
-        <DropdownMenuItem asChild>
+        <DropdownMenuItem asChild className="cursor-pointer">
           <Link href="/workspaces/create" className="flex items-center gap-2">
             <Plus />
             <span>Create new workspace</span>
