@@ -1,19 +1,20 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 
 interface Props {
   user: User;
@@ -26,7 +27,6 @@ interface UserData {
 }
 
 export function UserAccountButton({ user }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
   const [userData, setUserData] = useState<UserData>({
     fullName: null,
     email: null,
@@ -70,8 +70,8 @@ export function UserAccountButton({ user }: Props) {
     : "U";
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           className="w-full h-auto p-2 justify-start gap-3 font-normal"
@@ -86,7 +86,7 @@ export function UserAccountButton({ user }: Props) {
               <AvatarFallback>{initials}</AvatarFallback>
             )}
           </Avatar>
-          <div className="flex flex-col items-start text-left">
+          <div className="flex flex-col items-start text-left w-full">
             <span className="text-sm font-medium">
               {userData.fullName || "User"}
             </span>
@@ -94,15 +94,16 @@ export function UserAccountButton({ user }: Props) {
               {userData.email || user.email}
             </span>
           </div>
+          <ChevronsUpDown className="text-gray-500" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-64 p-0"
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-64"
         side="right"
         align="end"
         sideOffset={8}
       >
-        <div className="p-3 flex items-center gap-3">
+        <div className="p-2 flex items-center gap-3">
           <Avatar className="h-10 w-10">
             {userData.avatarUrl ? (
               <AvatarImage
@@ -122,19 +123,15 @@ export function UserAccountButton({ user }: Props) {
             </p>
           </div>
         </div>
-        <Separator />
-        <div className="p-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="w-full justify-start gap-2 text-red-600 hover:text-red-600 hover:bg-red-100/50"
-            onClick={handleLogout}
-          >
-            <LogOut className="h-4 w-4" />
-            Log out
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="w-full justify-start gap-2"
+          onClick={handleLogout}
+        >
+          <LogOut />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

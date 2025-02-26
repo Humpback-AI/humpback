@@ -7,10 +7,13 @@ import { usePathname } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 
 import { getColorFromName } from "./WorkspaceSwitcher/lib";
@@ -77,8 +80,8 @@ export function WorkspaceSwitcher({
   }, [currentWorkspaceId]);
 
   return (
-    <Popover>
-      <PopoverTrigger asChild>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
           className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6 w-full h-12"
@@ -99,46 +102,47 @@ export function WorkspaceSwitcher({
               {currentWorkspace?.name || "--"}
             </span>
           </div>
-          <ChevronsUpDown className="h-4 w-4 text-gray-500" />
+          <ChevronsUpDown className="text-gray-500" />
         </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-64 p-2" align="start">
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-gray-500 px-2">
-            Workspaces
-          </div>
-          {workspaces.map((workspace) => (
-            <Button
-              asChild
-              key={workspace.id}
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm h-12 w-full justify-start"
-              variant="ghost"
-            >
-              <Link href={`/${workspace.id}${getPathAfterWorkspaceId()}`}>
-                <div
-                  className={`w-8 h-8 ${getColorFromName(
-                    workspace.name
-                  )} rounded-full flex items-center justify-center`}
-                >
-                  <span className="text-white text-sm font-medium">
-                    {workspace.name.substring(0, 2).toUpperCase()}
-                  </span>
-                </div>
-                <span>{workspace.name}</span>
-              </Link>
-            </Button>
-          ))}
-          <Button asChild className="w-full justify-start" variant="ghost">
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-64"
+        align="start"
+        side="right"
+        sideOffset={8}
+      >
+        <DropdownMenuLabel className="text-xs font-medium">
+          Workspaces
+        </DropdownMenuLabel>
+        {workspaces.map((workspace) => (
+          <DropdownMenuItem key={workspace.id} asChild>
             <Link
-              href="/workspaces/create"
-              className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-sm h-12"
+              href={`/${workspace.id}${getPathAfterWorkspaceId()}`}
+              className="flex items-center gap-2"
             >
-              <Plus />
-              <span>Create new workspace</span>
+              <div
+                className={`w-8 h-8 ${getColorFromName(
+                  workspace.name
+                )} rounded-full flex items-center justify-center`}
+              >
+                <span className="text-white text-sm font-medium">
+                  {workspace.name.substring(0, 2).toUpperCase()}
+                </span>
+              </div>
+              <span>{workspace.name}</span>
             </Link>
-          </Button>
-        </div>
-      </PopoverContent>
-    </Popover>
+          </DropdownMenuItem>
+        ))}
+
+        <DropdownMenuSeparator />
+
+        <DropdownMenuItem asChild>
+          <Link href="/workspaces/create" className="flex items-center gap-2">
+            <Plus />
+            <span>Create new workspace</span>
+          </Link>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }
