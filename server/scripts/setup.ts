@@ -78,7 +78,7 @@ async function setupMeilisearch() {
     const index = client.index('chunks');
 
     await index.updateSearchableAttributes(['content', 'title']);
-    await index.updateFilterableAttributes(['workspace_id', 'user_id']);
+    await index.updateFilterableAttributes(['user_id']);
     await index.updateSortableAttributes([
       'created_at_timestamp',
       'updated_at_timestamp',
