@@ -6,14 +6,15 @@ import { Loader2 } from "lucide-react";
 
 import type { Tables } from "~/supabase/types";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction,
+} from "@/components/ui/alert-dialog";
 import { deleteChunk } from "@/modules/[workspace-id]/chunks/actions";
 
 interface DeleteChunkDialogProps {
@@ -45,37 +46,32 @@ export function DeleteChunkDialog({
   });
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Delete Post</DialogTitle>
-          <DialogDescription className="pt-4">
+    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Delete Post</AlertDialogTitle>
+          <AlertDialogDescription>
             Are you sure you want to delete this post? This action cannot be
             undone.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="py-4">
-          <div className="w-full p-3 bg-muted rounded-md">
-            <p className="font-medium">{chunk.title}</p>
-            <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
-              {chunk.content}
-            </p>
-          </div>
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="w-full p-3 bg-muted rounded-md">
+          <p className="font-medium">{chunk.title}</p>
+          <p className="text-sm text-muted-foreground mt-1 line-clamp-2">
+            {chunk.content}
+          </p>
         </div>
-        <DialogFooter>
-          <Button variant="ghost" onClick={onClose} disabled={isPending}>
-            Cancel
-          </Button>
-          <Button
-            variant="destructive"
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogAction
             onClick={() => handleDelete(chunk.id)}
             disabled={isPending}
           >
             {isPending && <Loader2 className="animate-spin" />}
             Delete Post
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
