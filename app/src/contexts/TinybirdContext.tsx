@@ -11,10 +11,11 @@ import {
 import { generateJWT } from "@/lib/tinybird/token";
 
 interface TinybirdContextType {
-  fetchWithToken: <T = unknown>(
+  fetchAnalytics: <T = unknown>(
     url: string,
     params?: Record<string, string | number | boolean>
   ) => Promise<T | undefined>;
+  queryKey: string;
 }
 
 const TinybirdContext = createContext<TinybirdContextType | null>(null);
@@ -40,7 +41,7 @@ export function TinybirdProvider({ children }: TinybirdProviderProps) {
     return newToken;
   }, []);
 
-  const fetchWithToken = useCallback(
+  const fetchAnalytics = useCallback(
     async <T = unknown,>(
       url: string,
       params?: Record<string, string | number | boolean>
@@ -78,7 +79,8 @@ export function TinybirdProvider({ children }: TinybirdProviderProps) {
   );
 
   const value = {
-    fetchWithToken,
+    fetchAnalytics,
+    queryKey: "/contexts/TinybirdContext/fetchAnalytics",
   };
 
   return (

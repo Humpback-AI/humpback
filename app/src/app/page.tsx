@@ -1,20 +1,25 @@
 "use client";
 
-// import { useQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 
-// import { useTinybird } from "@/contexts/TinybirdContext";
+import { useTinybird } from "@/contexts/TinybirdContext";
+import { useAuth } from "@/contexts/AuthContext";
 
-// const ENDPOINT_URL =
-//   "https://api.us-east.aws.tinybird.co/v0/pipes/chunks_referenced_by_search.json";
+const ENDPOINT_URL =
+  "https://api.us-east.aws.tinybird.co/v0/pipes/chunks_referenced_by_search.json";
 
 export default function HomePage() {
-  // const { fetchWithToken } = useTinybird();
+  const { user } = useAuth();
+  const { fetchAnalytics, queryKey } = useTinybird();
 
-  // const { data } = useQuery({
-  //   queryKey: ["tinybird-analytics"],
-  //   queryFn: () => fetchWithToken(ENDPOINT_URL, {}),
-  // });
-  // console.log("🚀 ~ HomePage ~ data:", data);
+  const { data } = useQuery({
+    queryKey: [queryKey, ENDPOINT_URL, user?.id],
+    queryFn: () =>
+      fetchAnalytics(ENDPOINT_URL, {
+        user_id: user?.id || "",
+      }),
+  });
+  console.log("🚀 ~ HomePage ~ data:", data);
 
   return (
     <div className="max-w-4xl">
