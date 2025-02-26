@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -18,14 +18,14 @@ import {
   DialogTitle,
   DialogFooter,
   DialogTrigger,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createChunk } from "@/modules/[workspace-id]/chunks/actions";
-import { createClient } from "@/lib/supabase/client";
-import { DialogClose } from "@radix-ui/react-dialog";
+import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
   title: z
@@ -45,7 +45,8 @@ interface Props {
 export function CreateChunkAction({ onRefetch }: Props) {
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
-  const [userId, setUserId] = useState<string | null>(null);
+  const { user } = useAuth();
+  const userId = user?.id ?? null;
   const [isOpen, setIsOpen] = useState(false);
 
   useHotkeys("c", () => setIsOpen(true), {
@@ -53,24 +54,6 @@ export function CreateChunkAction({ onRefetch }: Props) {
     enableOnFormTags: false,
     preventDefault: true,
   });
-
-  useEffect(() => {
-    const supabase = createClient();
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUserId(session?.user?.id ?? null);
-    });
-
-    // Listen for auth changes
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUserId(session?.user?.id ?? null);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),

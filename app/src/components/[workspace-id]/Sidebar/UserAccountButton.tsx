@@ -1,9 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
-import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
 import {
@@ -15,45 +13,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { UserData } from "@/contexts/AuthContext";
 
 interface Props {
-  user: User;
-}
-
-interface UserData {
-  fullName: string | null;
-  email: string | null;
-  avatarUrl: string | null;
+  user: UserData;
 }
 
 export function UserAccountButton({ user }: Props) {
-  const [userData, setUserData] = useState<UserData>({
-    fullName: null,
-    email: null,
-    avatarUrl: null,
-  });
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      const supabase = createClient();
-      const { data, error } = await supabase
-        .from("users")
-        .select("full_name, email, avatar_image_url")
-        .eq("id", user.id)
-        .single();
-
-      if (!error && data) {
-        setUserData({
-          fullName: data.full_name,
-          email: data.email,
-          avatarUrl: data.avatar_image_url,
-        });
-      }
-    };
-
-    fetchUserData();
-  }, [user.id]);
 
   const handleLogout = async () => {
     const supabase = createClient();
@@ -61,8 +28,8 @@ export function UserAccountButton({ user }: Props) {
     router.push("/auth/signin");
   };
 
-  const initials = userData.fullName
-    ? userData.fullName
+  const initials = user.full_name
+    ? user.full_name
         .split(" ")
         .map((name: string) => name[0])
         .join("")
@@ -77,10 +44,10 @@ export function UserAccountButton({ user }: Props) {
           className="w-full h-auto p-2 justify-start gap-3 font-normal"
         >
           <Avatar className="h-8 w-8">
-            {userData.avatarUrl ? (
+            {user.avatar_image_url ? (
               <AvatarImage
-                src={userData.avatarUrl}
-                alt={userData.fullName || userData.email || "--"}
+                src={user.avatar_image_url}
+                alt={user.full_name || user.email || "--"}
               />
             ) : (
               <AvatarFallback>{initials}</AvatarFallback>
@@ -88,10 +55,10 @@ export function UserAccountButton({ user }: Props) {
           </Avatar>
           <div className="flex flex-col items-start text-left w-full">
             <span className="text-sm font-medium">
-              {userData.fullName || "User"}
+              {user.full_name || "User"}
             </span>
             <span className="text-xs text-muted-foreground truncate max-w-[150px]">
-              {userData.email || user.email}
+              {user.email}
             </span>
           </div>
           <ChevronsUpDown className="text-gray-500" />
@@ -105,10 +72,10 @@ export function UserAccountButton({ user }: Props) {
       >
         <div className="p-2 flex items-center gap-3">
           <Avatar className="h-10 w-10">
-            {userData.avatarUrl ? (
+            {user.avatar_image_url ? (
               <AvatarImage
-                src={userData.avatarUrl}
-                alt={userData.fullName || userData.email || "--"}
+                src={user.avatar_image_url}
+                alt={user.full_name || user.email || "--"}
               />
             ) : (
               <AvatarFallback>{initials}</AvatarFallback>
@@ -116,10 +83,10 @@ export function UserAccountButton({ user }: Props) {
           </Avatar>
           <div className="flex flex-col">
             <p className="text-sm font-medium leading-none">
-              {userData.fullName || "User"}
+              {user.full_name || "User"}
             </p>
             <p className="text-xs text-muted-foreground truncate max-w-[160px]">
-              {userData.email || user.email}
+              {user.email}
             </p>
           </div>
         </div>
