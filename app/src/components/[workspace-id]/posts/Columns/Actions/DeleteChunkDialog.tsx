@@ -1,7 +1,7 @@
 "use client";
 
 import { toast } from "sonner";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Loader2 } from "lucide-react";
 
 import type { Tables } from "~/supabase/types";
@@ -15,29 +15,34 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import { deleteChunk } from "@/modules/[workspace-id]/chunks/actions";
+import {
+  deleteChunk,
+  fetchChunks,
+} from "@/modules/[workspace-id]/chunks/actions";
 
 interface DeleteChunkDialogProps {
   chunk: Tables<"chunks">;
   isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+  onOpenChange: (open: boolean) => void;
+  onRefetch: () => void;
 }
 
 export function DeleteChunkDialog({
   chunk,
   isOpen,
-  onClose,
-  onSuccess,
+  onOpenChange,
+  onRefetch,
 }: DeleteChunkDialogProps) {
+  const queryClient = useQueryClient();
   const { mutate: handleDelete, isPending } = useMutation({
     mutationFn: deleteChunk,
     onSuccess: () => {
       toast.success("Post Deleted", {
         description: "The post has been deleted successfully",
       });
-      onSuccess();
-      onClose();
+      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: [fetchChunks.key] });
+      onRefetch();
     },
     onError: (error) => {
       const message = error.message || "Failed to delete post";
@@ -46,7 +51,7 @@ export function DeleteChunkDialog({
   });
 
   return (
-    <AlertDialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <AlertDialog open={isOpen} onOpenChange={onOpenChange}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Delete Post</AlertDialogTitle>

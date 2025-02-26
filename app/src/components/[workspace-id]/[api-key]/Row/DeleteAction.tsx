@@ -18,12 +18,12 @@ import {
 import { deleteApiKey } from "@/modules/[workspace-id]/api-keys/actions";
 import { Button } from "@/components/ui/button";
 
-interface DeleteDialogProps {
+interface Props {
   apiKey: Tables<"api_keys">;
   onSuccess: () => void;
 }
 
-export function DeleteAction({ apiKey, onSuccess }: DeleteDialogProps) {
+export function DeleteAction({ apiKey, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const { mutate: handleDelete, isPending } = useMutation({
     mutationFn: deleteApiKey,

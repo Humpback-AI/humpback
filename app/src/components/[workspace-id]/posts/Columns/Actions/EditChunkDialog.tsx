@@ -1,6 +1,6 @@
 "use client";
 
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,12 +14,16 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateChunk } from "@/modules/[workspace-id]/chunks/actions";
+import {
+  fetchChunks,
+  updateChunk,
+} from "@/modules/[workspace-id]/chunks/actions";
 import type { Tables } from "~/supabase/types";
 
 const formSchema = z.object({
@@ -33,37 +37,39 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface EditChunkDialogProps {
-  chunk: Tables<"chunks">;
+interface Props {
+  post: Tables<"chunks">;
   isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+  onOpenChange: (open: boolean) => void;
+  onRefetch: () => void;
 }
 
 export function EditChunkDialog({
-  chunk,
+  post,
   isOpen,
-  onClose,
-  onSuccess,
-}: EditChunkDialogProps) {
+  onOpenChange,
+  onRefetch,
+}: Props) {
+  const queryClient = useQueryClient();
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: chunk.title,
-      content: chunk.content,
-      source_url: chunk.source_url || "",
+      title: post.title,
+      content: post.content,
+      source_url: post.source_url || "",
     },
   });
 
   const { mutate: editPost, isPending } = useMutation({
-    mutationFn: (values: FormValues) => updateChunk(chunk.id, values),
+    mutationFn: (values: FormValues) => updateChunk(post.id, values),
     onSuccess: () => {
       toast.success("Post Updated", {
         description: "Your post has been updated successfully",
       });
       form.reset();
-      onSuccess();
-      onClose();
+      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: [fetchChunks.key] });
+      onRefetch();
     },
     onError: (error) => {
       const message = error.message || "Failed to update post";
@@ -76,7 +82,7 @@ export function EditChunkDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Post</DialogTitle>
@@ -131,14 +137,11 @@ export function EditChunkDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="animate-spin" />}
               Save Changes
