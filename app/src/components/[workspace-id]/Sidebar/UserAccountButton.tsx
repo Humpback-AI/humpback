@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { LogOut } from "lucide-react";
+import { ChevronsUpDown, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
 import type { User } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -25,7 +27,6 @@ interface UserData {
 }
 
 export function UserAccountButton({ user }: Props) {
-  const [isOpen, setIsOpen] = useState(false);
   const [userData, setUserData] = useState<UserData>({
     fullName: null,
     email: null,
@@ -69,10 +70,13 @@ export function UserAccountButton({ user }: Props) {
     : "U";
 
   return (
-    <Popover open={isOpen} onOpenChange={setIsOpen}>
-      <PopoverTrigger asChild>
-        <Button variant="ghost" className="h-6 w-6 rounded-full p-0">
-          <Avatar className="h-6 w-6">
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="ghost"
+          className="w-full h-auto p-2 justify-start gap-3 font-normal"
+        >
+          <Avatar className="h-8 w-8">
             {userData.avatarUrl ? (
               <AvatarImage
                 src={userData.avatarUrl}
@@ -82,28 +86,52 @@ export function UserAccountButton({ user }: Props) {
               <AvatarFallback>{initials}</AvatarFallback>
             )}
           </Avatar>
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent className="w-56 p-2" align="start">
-        <div className="space-y-3">
-          <div className="flex flex-col space-y-1 p-2">
-            <p className="text-sm font-medium">
-              {userData.fullName || userData.email || "--"}
-            </p>
-            <p className="text-xs text-gray-500">{user.email}</p>
+          <div className="flex flex-col items-start text-left w-full">
+            <span className="text-sm font-medium">
+              {userData.fullName || "User"}
+            </span>
+            <span className="text-xs text-muted-foreground truncate max-w-[150px]">
+              {userData.email || user.email}
+            </span>
           </div>
-          <div className="space-y-1">
-            <Button
-              variant="ghost"
-              className="w-full justify-start gap-2 h-8"
-              onClick={handleLogout}
-            >
-              <LogOut />
-              Logout
-            </Button>
+          <ChevronsUpDown className="text-gray-500" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        className="w-64"
+        side="right"
+        align="end"
+        sideOffset={8}
+      >
+        <div className="p-2 flex items-center gap-3">
+          <Avatar className="h-10 w-10">
+            {userData.avatarUrl ? (
+              <AvatarImage
+                src={userData.avatarUrl}
+                alt={userData.fullName || userData.email || "--"}
+              />
+            ) : (
+              <AvatarFallback>{initials}</AvatarFallback>
+            )}
+          </Avatar>
+          <div className="flex flex-col">
+            <p className="text-sm font-medium leading-none">
+              {userData.fullName || "User"}
+            </p>
+            <p className="text-xs text-muted-foreground truncate max-w-[160px]">
+              {userData.email || user.email}
+            </p>
           </div>
         </div>
-      </PopoverContent>
-    </Popover>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          className="w-full justify-start gap-2"
+          onClick={handleLogout}
+        >
+          <LogOut />
+          Log out
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

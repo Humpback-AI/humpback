@@ -1,10 +1,11 @@
 import Sidebar from "@/components/[workspace-id]/Sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen">
+    <SidebarProvider defaultOpen>
       <Sidebar />
-      <main className="flex-1 ml-64 p-8">{children}</main>
-    </div>
+      <main className="w-full px-3">{children}</main>
+    </SidebarProvider>
   );
 }
