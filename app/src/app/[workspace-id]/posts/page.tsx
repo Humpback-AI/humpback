@@ -59,6 +59,7 @@ export default function PostsPage() {
 
   return (
     <>
+      {/* TODO: Turn this into an action instead */}
       <CreateChunkDialog
         isOpen={showCreateDialog}
         onClose={() => setShowCreateDialog(false)}
