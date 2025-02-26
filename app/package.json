@@ -31,6 +31,7 @@
     "clsx": "^2.1.1",
     "generate-api-key": "^1.0.2",
     "http-status": "^2.1.0",
+    "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.475.0",
     "meilisearch": "^0.49.0",
     "next": "15.1.7",
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@types/jsonwebtoken": "^9.0.9",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
