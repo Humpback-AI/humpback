@@ -264,7 +264,9 @@ export class SearchService {
     return {
       query: createSearchDto.query, // Return original query in response
       transformed_query: transformedQuery, // Add transformed query to response
-      results: combinedResults,
+      results: combinedResults.map((result) =>
+        R.omit(result, ['workspace_id']),
+      ),
       total_results: combinedResults.length,
       time_taken: timeTaken,
     };
