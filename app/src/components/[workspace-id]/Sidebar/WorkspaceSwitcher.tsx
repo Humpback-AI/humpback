@@ -84,7 +84,7 @@ export function WorkspaceSwitcher({
       <DropdownMenuTrigger asChild>
         <Button
           variant="ghost"
-          className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 mb-6 w-full h-12"
+          className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 w-full h-12"
         >
           <div
             className={`w-8 h-8 ${

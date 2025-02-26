@@ -33,7 +33,7 @@ const Sidebar = () => {
         <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
       </SidebarHeader>
 
-      <SidebarContent className="px-2">
+      <SidebarContent className="p-2">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton

@@ -13,7 +13,6 @@ export default function HomePage() {
   const workspaceId = params["workspace-id"]?.toString() ?? "";
   const { fetchWithToken } = useTinybird();
 
-  // FIXME: There's an issue with token signing
   const { data } = useQuery({
     queryKey: ["tinybird-analytics", workspaceId],
     queryFn: () =>
