@@ -1,6 +1,5 @@
 export type ChunkPayload = {
   id: string;
-  workspace_id: string;
   source_url: string;
   title: string;
   created_at: string;
@@ -8,5 +7,5 @@ export type ChunkPayload = {
   created_at_timestamp: number;
   updated_at_timestamp: number | null;
   content: string;
-  user_id: string | null;
+  user_id: string;
 };

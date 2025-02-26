@@ -41,7 +41,7 @@ export type Database = {
           key: string;
           name: string;
           updated_at: string | null;
-          workspace_id: string;
+          user_id: string;
         };
         Insert: {
           created_at?: string;
@@ -49,7 +49,7 @@ export type Database = {
           key: string;
           name: string;
           updated_at?: string | null;
-          workspace_id: string;
+          user_id: string;
         };
         Update: {
           created_at?: string;
@@ -57,14 +57,14 @@ export type Database = {
           key?: string;
           name?: string;
           updated_at?: string | null;
-          workspace_id?: string;
+          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "api_keys_workspace_id_fkey";
-            columns: ["workspace_id"];
+            foreignKeyName: "api_keys_user_id_fkey";
+            columns: ["user_id"];
             isOneToOne: false;
-            referencedRelation: "workspaces";
+            referencedRelation: "users";
             referencedColumns: ["id"];
           }
         ];
@@ -77,8 +77,7 @@ export type Database = {
           source_url: string;
           title: string;
           updated_at: string | null;
-          user_id: string | null;
-          workspace_id: string;
+          user_id: string;
         };
         Insert: {
           content: string;
@@ -87,8 +86,7 @@ export type Database = {
           source_url: string;
           title: string;
           updated_at?: string | null;
-          user_id?: string | null;
-          workspace_id: string;
+          user_id: string;
         };
         Update: {
           content?: string;
@@ -97,8 +95,7 @@ export type Database = {
           source_url?: string;
           title?: string;
           updated_at?: string | null;
-          user_id?: string | null;
-          workspace_id?: string;
+          user_id?: string;
         };
         Relationships: [
           {
@@ -106,13 +103,6 @@ export type Database = {
             columns: ["user_id"];
             isOneToOne: false;
             referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "chunks_workspace_id_fkey";
-            columns: ["workspace_id"];
-            isOneToOne: false;
-            referencedRelation: "workspaces";
             referencedColumns: ["id"];
           }
         ];
@@ -144,80 +134,12 @@ export type Database = {
         };
         Relationships: [];
       };
-      workspace_roles: {
-        Row: {
-          created_at: string;
-          id: string;
-          role: string;
-          updated_at: string | null;
-          user_id: string;
-          workspace_id: string;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          role: string;
-          updated_at?: string | null;
-          user_id: string;
-          workspace_id: string;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          role?: string;
-          updated_at?: string | null;
-          user_id?: string;
-          workspace_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "workspace_roles_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "workspace_roles_workspace_id_fkey";
-            columns: ["workspace_id"];
-            isOneToOne: false;
-            referencedRelation: "workspaces";
-            referencedColumns: ["id"];
-          }
-        ];
-      };
-      workspaces: {
-        Row: {
-          created_at: string;
-          id: string;
-          name: string;
-          updated_at: string | null;
-        };
-        Insert: {
-          created_at?: string;
-          id?: string;
-          name: string;
-          updated_at?: string | null;
-        };
-        Update: {
-          created_at?: string;
-          id?: string;
-          name?: string;
-          updated_at?: string | null;
-        };
-        Relationships: [];
-      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
-      create_workspace_with_owner: {
-        Args: {
-          workspace_name: string;
-        };
-        Returns: string;
-      };
+      [_ in never]: never;
     };
     Enums: {
       [_ in never]: never;

@@ -27,7 +27,7 @@ interface SearchResult {
   content: string;
   score: number;
   id: string;
-  workspace_id: string;
+  user_id: string;
 }
 
 const SCORE_THRESHOLD = 0.2;
@@ -144,7 +144,7 @@ export class SearchService {
         created_at: new Date().toISOString(),
         updated_at: null,
         id: randomUUID(),
-        workspace_id: 'tavily',
+        user_id: 'tavily',
       }));
 
       return [...currentResults, ...tavilyResults];
@@ -196,7 +196,7 @@ export class SearchService {
         content: payload.content,
         score: result.score,
         id: String(result.id),
-        workspace_id: payload.workspace_id,
+        user_id: payload.user_id,
       };
     });
 
@@ -210,7 +210,7 @@ export class SearchService {
         content: hit.content,
         score: 0,
         id: String(hit.id),
-        workspace_id: hit.workspace_id,
+        user_id: hit.user_id,
       }));
 
     // Combine results from both sources
@@ -264,9 +264,7 @@ export class SearchService {
     return {
       query: createSearchDto.query, // Return original query in response
       transformed_query: transformedQuery, // Add transformed query to response
-      results: combinedResults.map((result) =>
-        R.omit(result, ['workspace_id']),
-      ),
+      results: combinedResults.map((result) => R.omit(result, ['user_id'])),
       total_results: combinedResults.length,
       time_taken: timeTaken,
     };

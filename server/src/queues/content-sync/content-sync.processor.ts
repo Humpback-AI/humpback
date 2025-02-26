@@ -90,7 +90,6 @@ export class ContentSyncProcessor {
 
       const payloads: ChunkPayloadType[] = chunks.map((chunk) => ({
         id: chunk.id,
-        workspace_id: chunk.workspace_id,
         source_url: chunk.source_url,
         title: chunk.title,
         content: chunk.content,
@@ -118,6 +117,7 @@ export class ContentSyncProcessor {
             updated_at_timestamp: payload.updated_at
               ? new Date(payload.updated_at).getTime()
               : null,
+            user_id: payload.user_id,
           })),
           { primaryKey: 'id' },
         ),
