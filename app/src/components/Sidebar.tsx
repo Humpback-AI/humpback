@@ -13,10 +13,8 @@ import {
   SidebarMenuButton,
   SidebarFooter,
 } from "@/components/ui/sidebar";
-import { UserAccountButton } from "@/components/[workspace-id]/Sidebar/UserAccountButton";
+import { UserAccountButton } from "@/components/Sidebar/UserAccountButton";
 import { useAuth } from "@/contexts/AuthContext";
-
-import { WorkspaceSwitcher } from "./Sidebar/WorkspaceSwitcher";
 
 const Sidebar = () => {
   const params = useParams();
@@ -30,7 +28,6 @@ const Sidebar = () => {
         <div className="flex items-center px-2">
           <span className="font-semibold text-xl">Humpback</span>
         </div>
-        <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
       </SidebarHeader>
 
       <SidebarContent className="p-2">

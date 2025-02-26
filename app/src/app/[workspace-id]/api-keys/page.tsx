@@ -12,8 +12,8 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { fetchApiKeys } from "@/modules/[workspace-id]/api-keys/actions";
-import Row from "@/components/[workspace-id]/[api-key]/Row";
-import { CreateKeyAction } from "@/components/[workspace-id]/[api-key]/CreateKeyAction";
+import Row from "@/components/[api-key]/Row";
+import { CreateKeyAction } from "@/components/[api-key]/CreateKeyAction";
 
 export default function ApiKeysPage() {
   const params = useParams();

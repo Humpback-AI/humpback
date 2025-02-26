@@ -9,9 +9,9 @@ import type { SearchResponse } from "meilisearch";
 
 import { Input } from "@/components/ui/input";
 import { fetchChunks } from "@/modules/[workspace-id]/chunks/actions";
-import { CreateChunkAction } from "@/components/[workspace-id]/posts/CreateChunkAction";
-import { DataTable } from "@/components/[workspace-id]/posts/DataTable";
-import { columns } from "@/components/[workspace-id]/posts/Columns";
+import { CreateChunkAction } from "@/components/posts/CreateChunkAction";
+import { DataTable } from "@/components/posts/DataTable";
+import { columns } from "@/components/posts/Columns";
 import type { ChunkPayload } from "~/meilisearch/types";
 
 const ITEMS_PER_PAGE = 10;
