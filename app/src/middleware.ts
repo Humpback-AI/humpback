@@ -89,36 +89,6 @@ export async function middleware(request: NextRequest) {
     );
   }
 
-  // Handle root path workspace redirect
-  if (request.nextUrl.pathname === "/") {
-    const { data: workspaceRoles } = await supabase
-      .from("workspace_roles")
-      .select("workspace_id")
-      .eq("user_id", session.user.id)
-      .limit(1);
-
-    if (workspaceRoles?.length) {
-      return createRedirect(request, `/${workspaceRoles[0].workspace_id}`);
-    }
-    return createRedirect(request, "/workspaces/create");
-  }
-
-  // Special handling for workspace creation
-  if (request.nextUrl.pathname === "/workspaces/create") {
-    return response;
-  }
-
-  // Workspace role check for all other protected routes
-  const { data: workspaceRoles } = await supabase
-    .from("workspace_roles")
-    .select("id")
-    .eq("user_id", session.user.id)
-    .limit(1);
-
-  if (!workspaceRoles?.length) {
-    return createRedirect(request, "/workspaces/create");
-  }
-
   return response;
 }
 

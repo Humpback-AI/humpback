@@ -2,6 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { TinybirdProvider } from "@/contexts/TinybirdContext";
+import Sidebar from "@/components/Sidebar";
+
 import { Providers } from "./providers";
 import "./globals.css";
 
@@ -31,7 +35,16 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <Providers>
-          {children}
+          <SidebarProvider defaultOpen>
+            <TinybirdProvider>
+              <Sidebar />
+              <main className="w-full px-3 py-10">
+                <div className="container mx-auto max-w-screen-xl">
+                  {children}
+                </div>
+              </main>
+            </TinybirdProvider>
+          </SidebarProvider>
           <Toaster closeButton />
         </Providers>
       </body>

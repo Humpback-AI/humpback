@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -24,7 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { createChunk } from "@/modules/[workspace-id]/chunks/actions";
+import { createChunk } from "@/modules/chunks/actions";
 import { useAuth } from "@/contexts/AuthContext";
 
 const formSchema = z.object({
@@ -43,8 +42,6 @@ interface Props {
 }
 
 export function CreateChunkAction({ onRefetch }: Props) {
-  const params = useParams();
-  const workspaceId = params["workspace-id"] as string;
   const { user } = useAuth();
   const userId = user?.id ?? null;
   const [isOpen, setIsOpen] = useState(false);
@@ -66,7 +63,7 @@ export function CreateChunkAction({ onRefetch }: Props) {
 
   const { mutate: createPost, isPending } = useMutation({
     mutationFn: (values: FormValues) =>
-      createChunk({ workspaceId, userId: userId!, chunk: values }),
+      createChunk({ userId: userId!, chunk: values }),
     onSuccess: () => {
       toast.success("Post Created", {
         description: "Your post has been created successfully",
@@ -88,18 +85,13 @@ export function CreateChunkAction({ onRefetch }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button className="group flex items-center gap-2">
-          Create new post
-          <kbd className="hidden rounded px-2 py-0.5 text-xs font-light transition-all duration-75 md:inline-block bg-neutral-700 text-neutral-400 group-hover:bg-neutral-600 group-hover:text-neutral-300">
-            C
-          </kbd>
-        </Button>
+        <Button>Create Post</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
           <DialogDescription>
-            Create a new post to share with your audience.
+            Create a new post. Click save when you&apos;re done.
           </DialogDescription>
         </DialogHeader>
 
@@ -108,7 +100,7 @@ export function CreateChunkAction({ onRefetch }: Props) {
             <Label htmlFor="title">Title</Label>
             <Input
               id="title"
-              placeholder="Enter post title"
+              placeholder="Enter title"
               disabled={isPending}
               {...form.register("title")}
             />
@@ -123,8 +115,7 @@ export function CreateChunkAction({ onRefetch }: Props) {
             <Label htmlFor="content">Content</Label>
             <Textarea
               id="content"
-              placeholder="Write your post content here..."
-              className="h-32"
+              placeholder="Enter content"
               disabled={isPending}
               {...form.register("content")}
             />
@@ -139,7 +130,7 @@ export function CreateChunkAction({ onRefetch }: Props) {
             <Label htmlFor="source_url">Source URL</Label>
             <Input
               id="source_url"
-              placeholder="https://example.com"
+              placeholder="Enter source URL"
               disabled={isPending}
               {...form.register("source_url")}
             />
@@ -152,13 +143,13 @@ export function CreateChunkAction({ onRefetch }: Props) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="ghost" disabled={isPending}>
+              <Button type="button" variant="outline" disabled={isPending}>
                 Cancel
               </Button>
             </DialogClose>
-            <Button type="submit" disabled={isPending || !userId}>
+            <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="animate-spin" />}
-              Create Post
+              Save
             </Button>
           </DialogFooter>
         </form>

@@ -15,7 +15,7 @@ import {
   AlertDialogAction,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { deleteApiKey } from "@/modules/[workspace-id]/api-keys/actions";
+import { deleteApiKey } from "@/modules/api-keys/actions";
 import { Button } from "@/components/ui/button";
 
 interface Props {
@@ -25,11 +25,12 @@ interface Props {
 
 export function DeleteAction({ apiKey, onSuccess }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const { mutate: handleDelete, isPending } = useMutation({
-    mutationFn: deleteApiKey,
+
+  const { mutate: deleteKey, isPending } = useMutation({
+    mutationFn: () => deleteApiKey(apiKey.id),
     onSuccess: () => {
       toast.success("API Key Deleted", {
-        description: "The API key has been deleted successfully",
+        description: "Your API key has been deleted successfully",
       });
       onSuccess();
       setIsOpen(false);
@@ -43,32 +44,27 @@ export function DeleteAction({ apiKey, onSuccess }: Props) {
   return (
     <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
       <AlertDialogTrigger asChild>
-        <Button variant="ghost" size="sm">
+        <Button variant="ghost" size="icon">
           <Trash2 className="h-4 w-4" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Revoke API key</AlertDialogTitle>
-          <AlertDialogDescription className="pt-4">
-            This API key will immediately be disabled. API requests made using
-            this key will be rejected, which could cause any systems still
-            depending on it to break. Once revoked, you&apos;ll no longer be
-            able to view this API key.
+          <AlertDialogTitle>Delete API Key</AlertDialogTitle>
+          <AlertDialogDescription>
+            Are you sure you want to delete this API key? This action cannot be
+            undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
-        <div className="w-full p-3 bg-muted rounded-md font-mono text-sm">
-          {apiKey.key}
-        </div>
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isPending}>Cancel</AlertDialogCancel>
           <AlertDialogAction
-            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            onClick={() => handleDelete(apiKey.id)}
+            onClick={() => deleteKey()}
             disabled={isPending}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
             {isPending && <Loader2 className="animate-spin" />}
-            Revoke key
+            Delete
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

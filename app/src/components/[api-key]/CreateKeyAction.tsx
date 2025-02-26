@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
@@ -22,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { createApiKey } from "@/modules/[workspace-id]/api-keys/actions";
+import { createApiKey } from "@/modules/api-keys/actions";
 
 const formSchema = z.object({
   name: z
@@ -39,8 +38,6 @@ interface Props {
 
 export function CreateKeyAction({ onRefetch }: Props) {
   const [isOpen, setIsOpen] = useState(false);
-  const params = useParams();
-  const workspaceId = params["workspace-id"] as string;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -50,7 +47,7 @@ export function CreateKeyAction({ onRefetch }: Props) {
   });
 
   const { mutate: createKey, isPending } = useMutation({
-    mutationFn: (values: FormValues) => createApiKey(workspaceId, values.name),
+    mutationFn: (values: FormValues) => createApiKey(values.name),
     onSuccess: (key) => {
       toast.success("API Key Created", {
         description: (
@@ -75,7 +72,7 @@ export function CreateKeyAction({ onRefetch }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button disabled={isPending}>Create new key</Button>
+        <Button>Create API Key</Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -90,7 +87,7 @@ export function CreateKeyAction({ onRefetch }: Props) {
             <Label htmlFor="name">Name</Label>
             <Input
               id="name"
-              placeholder="e.g., Production"
+              placeholder="Enter a name for your API key"
               disabled={isPending}
               {...form.register("name")}
             />
@@ -103,13 +100,13 @@ export function CreateKeyAction({ onRefetch }: Props) {
 
           <DialogFooter>
             <DialogClose asChild>
-              <Button type="button" variant="ghost" disabled={isPending}>
+              <Button type="button" variant="outline" disabled={isPending}>
                 Cancel
               </Button>
             </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="animate-spin" />}
-              Create Key
+              Create
             </Button>
           </DialogFooter>
         </form>

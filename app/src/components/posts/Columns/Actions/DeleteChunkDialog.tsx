@@ -15,10 +15,7 @@ import {
   AlertDialogCancel,
   AlertDialogAction,
 } from "@/components/ui/alert-dialog";
-import {
-  deleteChunk,
-  fetchChunks,
-} from "@/modules/[workspace-id]/chunks/actions";
+import { deleteChunk, fetchChunks } from "@/modules/chunks/actions";
 
 interface Props {
   chunk: Tables<"chunks">;

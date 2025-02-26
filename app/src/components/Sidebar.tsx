@@ -1,6 +1,6 @@
 "use client";
 
-import { useParams, usePathname } from "next/navigation";
+import { usePathname } from "next/navigation";
 import Link from "next/link";
 import { Home, Key, FileText } from "lucide-react";
 
@@ -17,10 +17,13 @@ import { UserAccountButton } from "@/components/Sidebar/UserAccountButton";
 import { useAuth } from "@/contexts/AuthContext";
 
 const Sidebar = () => {
-  const params = useParams();
   const pathname = usePathname();
-  const workspaceId = params["workspace-id"] as string;
   const { userData } = useAuth();
+
+  // Don't show sidebar on auth pages
+  if (pathname.startsWith("/auth")) {
+    return null;
+  }
 
   return (
     <SidebarRoot>
@@ -35,10 +38,10 @@ const Sidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={pathname === `/${workspaceId}`}
+              isActive={pathname === "/"}
               tooltip="Home"
             >
-              <Link href={`/${workspaceId}`}>
+              <Link href="/">
                 <Home />
                 <span>Home</span>
               </Link>
@@ -48,10 +51,10 @@ const Sidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={pathname === `/${workspaceId}/posts`}
+              isActive={pathname === "/posts"}
               tooltip="Posts"
             >
-              <Link href={`/${workspaceId}/posts`}>
+              <Link href="/posts">
                 <FileText />
                 <span>Posts</span>
               </Link>
@@ -61,10 +64,10 @@ const Sidebar = () => {
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              isActive={pathname === `/${workspaceId}/api-keys`}
+              isActive={pathname === "/api-keys"}
               tooltip="API Keys"
             >
-              <Link href={`/${workspaceId}/api-keys`}>
+              <Link href="/api-keys">
                 <Key />
                 <span>API Keys</span>
               </Link>

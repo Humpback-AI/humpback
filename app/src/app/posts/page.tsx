@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import { Search, Loader2 } from "lucide-react";
-import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { useDebouncedCallback } from "use-debounce";
 import type { SearchResponse } from "meilisearch";
 
 import { Input } from "@/components/ui/input";
-import { fetchChunks } from "@/modules/[workspace-id]/chunks/actions";
+import { fetchChunks } from "@/modules/chunks/actions";
 import { CreateChunkAction } from "@/components/posts/CreateChunkAction";
 import { DataTable } from "@/components/posts/DataTable";
 import { columns } from "@/components/posts/Columns";
@@ -18,8 +17,6 @@ const ITEMS_PER_PAGE = 10;
 const DEBOUNCE_MS = 300;
 
 export default function PostsPage() {
-  const params = useParams();
-  const workspaceId = params["workspace-id"] as string;
   const [page, setPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
@@ -36,13 +33,12 @@ export default function PostsPage() {
   } = useQuery<
     SearchResponse<ChunkPayload, { hitsPerPage: number; page: number }>
   >({
-    queryKey: ["chunks", workspaceId, page, debouncedQuery],
+    queryKey: ["chunks", page, debouncedQuery],
     queryFn: () =>
       fetchChunks({
         query: debouncedQuery,
         page,
         hitsPerPage: ITEMS_PER_PAGE,
-        workspaceId,
       }),
     placeholderData: (previousData) => previousData,
   });

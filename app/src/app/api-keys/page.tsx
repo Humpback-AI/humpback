@@ -1,6 +1,5 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
 import {
@@ -11,17 +10,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { fetchApiKeys } from "@/modules/[workspace-id]/api-keys/actions";
+import { fetchApiKeys } from "@/modules/api-keys/actions";
 import Row from "@/components/[api-key]/Row";
 import { CreateKeyAction } from "@/components/[api-key]/CreateKeyAction";
+import type { Tables } from "~/supabase/types";
 
 export default function ApiKeysPage() {
-  const params = useParams();
-  const workspaceId = params["workspace-id"] as string;
-
-  const { data: apiKeys = [], refetch } = useQuery({
-    queryKey: [fetchApiKeys.key, workspaceId],
-    queryFn: () => fetchApiKeys(workspaceId),
+  const { data: apiKeys = [], refetch } = useQuery<Tables<"api_keys">[]>({
+    queryKey: [fetchApiKeys.key],
+    queryFn: () => fetchApiKeys(),
   });
 
   return (

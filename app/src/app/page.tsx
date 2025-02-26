@@ -1,4 +1,21 @@
-export default function Home() {
+"use client";
+
+// import { useQuery } from "@tanstack/react-query";
+
+// import { useTinybird } from "@/contexts/TinybirdContext";
+
+// const ENDPOINT_URL =
+//   "https://api.us-east.aws.tinybird.co/v0/pipes/chunks_referenced_by_search.json";
+
+export default function HomePage() {
+  // const { fetchWithToken } = useTinybird();
+
+  // const { data } = useQuery({
+  //   queryKey: ["tinybird-analytics"],
+  //   queryFn: () => fetchWithToken(ENDPOINT_URL, {}),
+  // });
+  // console.log("🚀 ~ HomePage ~ data:", data);
+
   return (
     <div className="max-w-4xl">
       <h1 className="text-4xl font-bold mb-6">Welcome to Humpback</h1>

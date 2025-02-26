@@ -20,10 +20,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  fetchChunks,
-  updateChunk,
-} from "@/modules/[workspace-id]/chunks/actions";
+import { fetchChunks, updateChunk } from "@/modules/chunks/actions";
 import type { Tables } from "~/supabase/types";
 
 const formSchema = z.object({
