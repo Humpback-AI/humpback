@@ -56,48 +56,46 @@ export default function PostsPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 max-w-screen-xl">
-      <div className="flex flex-col gap-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
-          <p className="text-muted-foreground mt-2">
-            Manage your posts and content. All posts will be available through
-            Humpback&apos;s search API.
-          </p>
-        </div>
-
-        <div className="flex justify-between items-center gap-4">
-          <div className="relative flex-1 max-w-sm">
-            {isPending ? (
-              <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 animate-spin" />
-            ) : (
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            )}
-            <Input
-              type="text"
-              placeholder="Search posts..."
-              value={searchQuery}
-              onChange={(e) => handleSearch(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                  debouncedSearch.flush();
-                }
-              }}
-              className="pl-9"
-            />
-          </div>
-          <CreateChunkAction onRefetch={refetch} />
-        </div>
-
-        <DataTable
-          columns={columns}
-          data={chunks}
-          pageCount={totalPages}
-          currentPage={page}
-          onPageChange={setPage}
-          onRefetch={refetch}
-        />
+    <div className="flex flex-col gap-6">
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight">Posts</h1>
+        <p className="text-muted-foreground mt-2">
+          Manage your posts and content. All posts will be available through
+          Humpback&apos;s search API.
+        </p>
       </div>
+
+      <div className="flex justify-between items-center gap-4">
+        <div className="relative flex-1 max-w-sm">
+          {isPending ? (
+            <Loader2 className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+          )}
+          <Input
+            type="text"
+            placeholder="Search posts..."
+            value={searchQuery}
+            onChange={(e) => handleSearch(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter") {
+                debouncedSearch.flush();
+              }
+            }}
+            className="pl-9"
+          />
+        </div>
+        <CreateChunkAction onRefetch={refetch} />
+      </div>
+
+      <DataTable
+        columns={columns}
+        data={chunks}
+        pageCount={totalPages}
+        currentPage={page}
+        onPageChange={setPage}
+        onRefetch={refetch}
+      />
     </div>
   );
 }
