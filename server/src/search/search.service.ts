@@ -14,6 +14,7 @@ import { ChunkPayloadSchema } from '@/providers/schemas/qdrant.schema';
 import { COHERE_CLIENT } from '@/providers/cohere.provider';
 import { MeilisearchClient } from '@/providers/meilisearch.provider';
 import { MEILISEARCH_CLIENT } from '@/providers/meilisearch.provider';
+import { TinybirdClient, TINYBIRD_CLIENT } from '@/providers/tinybird.provider';
 
 import { CreateSearchDto } from './dto/create-search.dto';
 import { SearchResponseDto } from './dto/search-response.dto';
@@ -45,6 +46,8 @@ export class SearchService {
     private readonly cohereClient: CohereClient,
     @Inject(MEILISEARCH_CLIENT)
     private readonly meilisearchClient: MeilisearchClient,
+    @Inject(TINYBIRD_CLIENT)
+    private readonly tinybirdClient: TinybirdClient,
     private readonly configService: ConfigService,
   ) {}
 
@@ -151,6 +154,7 @@ export class SearchService {
 
   async create(createSearchDto: CreateSearchDto): Promise<SearchResponseDto> {
     const startTime = Date.now();
+    const searchId = randomUUID();
 
     // Transform the query if not skipped
     const transformedQuery = createSearchDto.skip_transform
@@ -232,12 +236,33 @@ export class SearchService {
       );
     }
 
+    const timeTaken = (Date.now() - startTime) / 1_000;
+
+    await Promise.allSettled([
+      this.tinybirdClient.publishEvents('searches', [
+        {
+          query: createSearchDto.query,
+          transformed_query: transformedQuery,
+          search_id: searchId,
+          total_results: combinedResults.length,
+          time_taken: timeTaken,
+        },
+      ]),
+      this.tinybirdClient.publishEvents(
+        'search_results',
+        combinedResults.map((result) => ({
+          ...result,
+          search_id: searchId,
+        })),
+      ),
+    ]);
+
     return {
       query: createSearchDto.query, // Return original query in response
       transformed_query: transformedQuery, // Add transformed query to response
       results: combinedResults,
       total_results: combinedResults.length,
-      time_taken: (Date.now() - startTime) / 1_000,
+      time_taken: timeTaken,
     };
   }
 }

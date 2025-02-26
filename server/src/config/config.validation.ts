@@ -9,4 +9,6 @@ export const validationSchema = Joi.object({
   SUPABASE_SERVICE_KEY: Joi.string().required(),
   INTERNAL_SECRET_KEY: Joi.string().required(),
   TAVILY_API_KEY: Joi.string().default(''),
+  TINYBIRD_API_ENDPOINT: Joi.string().required(),
+  TINYBIRD_API_TOKEN: Joi.string().required(),
 });

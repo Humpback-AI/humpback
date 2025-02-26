@@ -15,6 +15,7 @@ import internalConfig from './config/internal.config';
 import tavilyConfig from './config/tavily.config';
 import cohereConfig from './config/cohere.config';
 import meilisearchConfig from './config/meilisearch.config';
+import tinybirdConfig from './config/tinybird.config';
 import { WebhooksModule } from './webhooks/webhooks.module';
 
 @Module({
@@ -43,6 +44,7 @@ import { WebhooksModule } from './webhooks/webhooks.module';
         tavilyConfig,
         meilisearchConfig,
         cohereConfig,
+        tinybirdConfig,
       ],
       validationSchema: validationSchema,
     }),
