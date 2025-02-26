@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Plus } from "lucide-react";
+import { ChevronsUpDown, Plus } from "lucide-react";
 import { usePathname } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/client";
@@ -99,7 +99,7 @@ export function WorkspaceSwitcher({
               {currentWorkspace?.name || "--"}
             </span>
           </div>
-          <ChevronDown className="h-4 w-4 text-gray-500" />
+          <ChevronsUpDown className="h-4 w-4 text-gray-500" />
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-64 p-2" align="start">

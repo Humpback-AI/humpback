@@ -6,10 +6,16 @@ import { useParams, usePathname } from "next/navigation";
 import { Home, Key, FileText } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 
+import {
+  Sidebar as SidebarRoot,
+  SidebarHeader,
+  SidebarContent,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
+} from "@/components/ui/sidebar";
 import { UserAccountButton } from "@/components/[workspace-id]/Sidebar/UserAccountButton";
 import { createClient } from "@/lib/supabase/client";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 
 import { WorkspaceSwitcher } from "./Sidebar/WorkspaceSwitcher";
 
@@ -38,82 +44,58 @@ const Sidebar = () => {
   }, []);
 
   return (
-    <aside className="fixed left-0 top-0 h-screen w-64 border-r border-gray-200 bg-white p-4 flex flex-col">
-      {/* Top Section with Brand and User */}
-      <div className="flex items-center justify-between mb-8 h-8">
-        <span className="font-semibold text-xl">Humpback</span>
-        {user && <UserAccountButton user={user} />}
-      </div>
+    <SidebarRoot>
+      <SidebarHeader className="flex flex-col gap-4">
+        <div className="flex items-center justify-between px-2">
+          <span className="font-semibold text-xl">Humpback</span>
+          {user && <UserAccountButton user={user} />}
+        </div>
+        <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
+      </SidebarHeader>
 
-      {/* Workspace Switcher */}
-      <WorkspaceSwitcher currentWorkspaceId={workspaceId} />
-
-      {/* Navigation Links */}
-      <nav className="flex-1">
-        <ul className="space-y-2">
-          <li>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start",
-                pathname === `/${workspaceId}` &&
-                  "bg-accent text-accent-foreground"
-              )}
+      <SidebarContent className="px-2">
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <SidebarMenuButton
               asChild
+              isActive={pathname === `/${workspaceId}`}
+              tooltip="Home"
             >
-              <Link
-                href={`/${workspaceId}`}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
+              <Link href={`/${workspaceId}`}>
                 <Home />
                 <span>Home</span>
               </Link>
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start",
-                pathname === `/${workspaceId}/posts` &&
-                  "bg-accent text-accent-foreground"
-              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
               asChild
+              isActive={pathname === `/${workspaceId}/posts`}
+              tooltip="Posts"
             >
-              <Link
-                href={`/${workspaceId}/posts`}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
+              <Link href={`/${workspaceId}/posts`}>
                 <FileText />
                 <span>Posts</span>
               </Link>
-            </Button>
-          </li>
-          <li>
-            <Button
-              variant="ghost"
-              className={cn(
-                "w-full justify-start",
-                pathname === `/${workspaceId}/api-keys` &&
-                  "bg-accent text-accent-foreground"
-              )}
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          <SidebarMenuItem>
+            <SidebarMenuButton
               asChild
+              isActive={pathname === `/${workspaceId}/api-keys`}
+              tooltip="API Keys"
             >
-              <Link
-                href={`/${workspaceId}/api-keys`}
-                className="flex items-center gap-2 p-2 rounded-lg hover:bg-gray-100 text-gray-700"
-              >
+              <Link href={`/${workspaceId}/api-keys`}>
                 <Key />
                 <span>API Keys</span>
               </Link>
-            </Button>
-          </li>
-        </ul>
-      </nav>
-
-      {/* Bottom Section */}
-      <div className="mt-auto"></div>
-    </aside>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarContent>
+    </SidebarRoot>
   );
 };
 
