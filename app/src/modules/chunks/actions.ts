@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/client";
-import { chunksIndex } from "@/lib/meilisearch/indexes";
+
+import { searchChunks } from "./actions/search";
 
 const supabase = createClient();
 
@@ -55,11 +56,7 @@ export async function fetchChunks({
   }
 
   // If there is a search query, use Meilisearch
-  return chunksIndex.search(query, {
-    page,
-    hitsPerPage,
-    filter: `user_id=${session.user.id}`,
-  });
+  return searchChunks({ query, page, hitsPerPage, userId: session.user.id });
 }
 
 fetchChunks.key = "/modules/chunks/actions/fetchChunks";
