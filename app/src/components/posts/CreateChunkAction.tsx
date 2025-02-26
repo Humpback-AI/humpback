@@ -85,7 +85,12 @@ export function CreateChunkAction({ onRefetch }: Props) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>Create Post</Button>
+        <Button className="group flex items-center gap-2">
+          Create Post
+          <kbd className="hidden rounded px-2 py-0.5 text-xs font-light transition-all duration-75 md:inline-block bg-neutral-700 text-neutral-400 group-hover:bg-neutral-600 group-hover:text-neutral-300">
+            C
+          </kbd>
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -117,6 +122,7 @@ export function CreateChunkAction({ onRefetch }: Props) {
               id="content"
               placeholder="Enter content"
               disabled={isPending}
+              className="h-32"
               {...form.register("content")}
             />
             {form.formState.errors.content && (
