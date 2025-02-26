@@ -1,12 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import {
   Dialog,
@@ -15,6 +16,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogClose,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -30,17 +33,12 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface CreateKeyDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+interface Props {
+  onRefetch: () => void;
 }
 
-export function CreateKeyDialog({
-  isOpen,
-  onClose,
-  onSuccess,
-}: CreateKeyDialogProps) {
+export function CreateKeyAction({ onRefetch }: Props) {
+  const [isOpen, setIsOpen] = useState(false);
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
 
@@ -61,8 +59,8 @@ export function CreateKeyDialog({
         duration: 10000,
       });
       form.reset();
-      onSuccess();
-      onClose();
+      onRefetch();
+      setIsOpen(false);
     },
     onError: (error) => {
       const message = error.message || "Failed to create API key";
@@ -75,7 +73,13 @@ export function CreateKeyDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button disabled={isPending}>
+          <Plus />
+          Create new key
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create API Key</DialogTitle>
@@ -101,14 +105,11 @@ export function CreateKeyDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit" disabled={isPending}>
               {isPending && <Loader2 className="animate-spin" />}
               Create Key

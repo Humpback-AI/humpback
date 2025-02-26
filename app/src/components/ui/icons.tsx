@@ -1,7 +1,6 @@
-import { Loader2, LucideProps } from "lucide-react";
+import { LucideProps } from "lucide-react";
 
 export const Icons = {
-  spinner: Loader2,
   google: (props: LucideProps) => (
     <svg {...props} viewBox="0 0 24 24">
       <path

@@ -67,7 +67,7 @@ export function DeleteAction({ apiKey, onSuccess }: Props) {
             onClick={() => handleDelete(apiKey.id)}
             disabled={isPending}
           >
-            {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isPending && <Loader2 className="animate-spin" />}
             Revoke key
           </AlertDialogAction>
         </AlertDialogFooter>

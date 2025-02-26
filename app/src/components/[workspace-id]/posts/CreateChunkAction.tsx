@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import {
   Dialog,
@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -23,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { createChunk } from "@/modules/[workspace-id]/chunks/actions";
 import { createClient } from "@/lib/supabase/client";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 const formSchema = z.object({
   title: z
@@ -35,20 +37,15 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface CreateChunkDialogProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+interface Props {
+  onRefetch: () => void;
 }
 
-export function CreateChunkDialog({
-  isOpen,
-  onClose,
-  onSuccess,
-}: CreateChunkDialogProps) {
+export function CreateChunkAction({ onRefetch }: Props) {
   const params = useParams();
   const workspaceId = params["workspace-id"] as string;
   const [userId, setUserId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const supabase = createClient();
@@ -85,8 +82,8 @@ export function CreateChunkDialog({
         description: "Your post has been created successfully",
       });
       form.reset();
-      onSuccess();
-      onClose();
+      setIsOpen(false);
+      onRefetch();
     },
     onError: (error) => {
       const message = error.message || "Failed to create post";
@@ -99,7 +96,13 @@ export function CreateChunkDialog({
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus />
+          Create new post
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Post</DialogTitle>
@@ -156,14 +159,11 @@ export function CreateChunkDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
             <Button type="submit" disabled={isPending || !userId}>
               {isPending && <Loader2 className="animate-spin" />}
               Create Post

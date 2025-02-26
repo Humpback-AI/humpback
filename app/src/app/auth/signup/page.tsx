@@ -6,6 +6,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -228,12 +230,12 @@ export default function SignUpPage() {
                 className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               >
                 I accept the{" "}
-                <a
+                <Link
                   href="/terms"
                   className="text-primary underline-offset-4 hover:underline"
                 >
                   terms and conditions
-                </a>
+                </Link>
               </label>
             </div>
             {form.formState.errors.acceptTerms && (
@@ -247,9 +249,7 @@ export default function SignUpPage() {
               </Alert>
             )}
             <Button className="w-full" type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isSubmitting && <Loader2 className="animate-spin" />}
               Create Account
             </Button>
           </form>
@@ -271,7 +271,7 @@ export default function SignUpPage() {
             onClick={signInWithGoogle}
           >
             {isSubmitting ? (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
               <Icons.google className="mr-2 h-4 w-4" />
             )}
@@ -281,12 +281,12 @@ export default function SignUpPage() {
         <CardFooter>
           <div className="text-sm text-muted-foreground">
             Already have an account?{" "}
-            <a
+            <Link
               href="/auth/signin"
               className="text-primary underline-offset-4 hover:underline"
             >
               Sign in
-            </a>
+            </Link>
           </div>
         </CardFooter>
       </Card>

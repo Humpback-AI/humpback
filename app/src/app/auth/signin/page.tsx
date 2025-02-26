@@ -6,6 +6,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
+import { Loader2 } from "lucide-react";
+import Link from "next/link";
 
 import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -161,9 +163,7 @@ export default function LoginPage() {
               </Alert>
             )}
             <Button className="w-full" type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
-              )}
+              {isSubmitting && <Loader2 className="animate-spin" />}
               Sign In with Email
             </Button>
           </form>
@@ -188,7 +188,7 @@ export default function LoginPage() {
             onClick={signInWithGoogle}
           >
             {isSubmitting ? (
-              <Icons.spinner className="mr-2 h-4 w-4 animate-spin" />
+              <Loader2 className="animate-spin" />
             ) : (
               <Icons.google className="mr-2 h-4 w-4" />
             )}
@@ -198,12 +198,12 @@ export default function LoginPage() {
         <CardFooter>
           <div className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
-            <a
+            <Link
               href="/auth/signup"
               className="text-primary underline-offset-4 hover:underline"
             >
               Sign up
-            </a>
+            </Link>
           </div>
         </CardFooter>
       </Card>
