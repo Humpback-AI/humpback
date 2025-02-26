@@ -20,7 +20,7 @@ import {
   fetchChunks,
 } from "@/modules/[workspace-id]/chunks/actions";
 
-interface DeleteChunkDialogProps {
+interface Props {
   chunk: Tables<"chunks">;
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
@@ -32,7 +32,7 @@ export function DeleteChunkDialog({
   isOpen,
   onOpenChange,
   onRefetch,
-}: DeleteChunkDialogProps) {
+}: Props) {
   const queryClient = useQueryClient();
   const { mutate: handleDelete, isPending } = useMutation({
     mutationFn: deleteChunk,
