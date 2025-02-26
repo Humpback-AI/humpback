@@ -100,7 +100,9 @@ export class SearchService {
 
     try {
       const rerankedResults = await this.cohereClient.rerank({
-        documents: results.map((result) => result.content),
+        documents: results.map(
+          (result) => `Title: ${result.title}\n\nContent: ${result.content}`,
+        ),
         query: query,
         model: 'rerank-v3.5',
         returnDocuments: true,
