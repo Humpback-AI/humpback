@@ -1,6 +1,6 @@
 import Sidebar from "@/components/[workspace-id]/Sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { TinybirdProvider } from "@/contexts/tinybird-context";
+import { TinybirdProvider } from "@/contexts/TinybirdContext";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (

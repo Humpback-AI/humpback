@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 
-import { useTinybird } from "@/contexts/tinybird-context";
+import { useTinybird } from "@/contexts/TinybirdContext";
 
 const ENDPOINT_URL =
   "https://api.us-east.aws.tinybird.co/v0/pipes/chunks_referenced_by_search.json";
