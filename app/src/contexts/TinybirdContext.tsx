@@ -7,6 +7,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+
 import { generateJWT } from "@/lib/tinybird/token";
 
 interface TinybirdContextType {
