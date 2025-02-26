@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
+import { Loader2, Plus } from "lucide-react";
 
 import {
   Dialog,
@@ -14,13 +16,15 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
+  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { updateChunk } from "@/modules/[workspace-id]/chunks/actions";
-import type { Tables } from "~/supabase/types";
+import { createChunk } from "@/modules/[workspace-id]/chunks/actions";
+import { createClient } from "@/lib/supabase/client";
+import { DialogClose } from "@radix-ui/react-dialog";
 
 const formSchema = z.object({
   title: z
@@ -33,54 +37,78 @@ const formSchema = z.object({
 
 type FormValues = z.infer<typeof formSchema>;
 
-interface EditChunkDialogProps {
-  chunk: Tables<"chunks">;
-  isOpen: boolean;
-  onClose: () => void;
-  onSuccess: () => void;
+interface Props {
+  onRefetch: () => void;
 }
 
-export function EditChunkDialog({
-  chunk,
-  isOpen,
-  onClose,
-  onSuccess,
-}: EditChunkDialogProps) {
+export function CreateChunkAction({ onRefetch }: Props) {
+  const params = useParams();
+  const workspaceId = params["workspace-id"] as string;
+  const [userId, setUserId] = useState<string | null>(null);
+  const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: chunk.title,
-      content: chunk.content,
-      source_url: chunk.source_url || "",
+      title: "",
+      content: "",
+      source_url: "",
     },
   });
 
-  const { mutate: editPost, isPending } = useMutation({
-    mutationFn: (values: FormValues) => updateChunk(chunk.id, values),
+  const { mutate: createPost, isPending } = useMutation({
+    mutationFn: (values: FormValues) =>
+      createChunk({ workspaceId, userId: userId!, chunk: values }),
     onSuccess: () => {
-      toast.success("Post Updated", {
-        description: "Your post has been updated successfully",
+      toast.success("Post Created", {
+        description: "Your post has been created successfully",
       });
       form.reset();
-      onSuccess();
-      onClose();
+      setIsOpen(false);
+      onRefetch();
     },
     onError: (error) => {
-      const message = error.message || "Failed to update post";
+      const message = error.message || "Failed to create post";
       toast.error("Error", { description: message });
     },
   });
 
   function onSubmit(values: FormValues) {
-    editPost(values);
+    createPost(values);
   }
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button>
+          <Plus />
+          Create new post
+        </Button>
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Edit Post</DialogTitle>
-          <DialogDescription>Make changes to your post.</DialogDescription>
+          <DialogTitle>Create Post</DialogTitle>
+          <DialogDescription>
+            Create a new post to share with your audience.
+          </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -131,17 +159,14 @@ export function EditChunkDialog({
           </div>
 
           <DialogFooter>
-            <Button
-              type="button"
-              variant="ghost"
-              onClick={onClose}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isPending}>
+            <DialogClose asChild>
+              <Button type="button" variant="ghost" disabled={isPending}>
+                Cancel
+              </Button>
+            </DialogClose>
+            <Button type="submit" disabled={isPending || !userId}>
               {isPending && <Loader2 className="animate-spin" />}
-              Save Changes
+              Create Post
             </Button>
           </DialogFooter>
         </form>

@@ -34,6 +34,7 @@ interface DataTableProps<TData, TValue> {
   pageCount: number;
   currentPage: number;
   onPageChange: (page: number) => void;
+  onRefetch: () => void;
 }
 
 export function DataTable<TData, TValue>({
@@ -42,6 +43,7 @@ export function DataTable<TData, TValue>({
   pageCount,
   currentPage,
   onPageChange,
+  onRefetch,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -57,6 +59,7 @@ export function DataTable<TData, TValue>({
       columnFilters,
     },
     manualPagination: true,
+    meta: { onRefetch },
   });
 
   return (
